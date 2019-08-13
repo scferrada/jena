@@ -220,6 +220,14 @@ public class OpExecutor
         return qIter ;
     }
 
+    public QueryIterator execute(OpSimJoin opSimJoin, QueryIterator input) {
+        QueryIterator left = exec(opSimJoin.getLeft(), input);
+        QueryIterator right = exec(opSimJoin.getRight(), root());
+
+        QueryIterator qIter = Join.simjoin(left, right, opSimJoin);
+        return null;
+    }
+
     // Pass iterator from one step directly into the next.
     protected QueryIterator execute(OpSequence opSequence, QueryIterator input) {
         QueryIterator qIter = input ;

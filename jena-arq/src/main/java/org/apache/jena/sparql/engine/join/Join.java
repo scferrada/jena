@@ -25,6 +25,7 @@ import org.apache.jena.atlas.iterator.Iter ;
 import org.apache.jena.sparql.algebra.Algebra ;
 import org.apache.jena.sparql.algebra.Table ;
 import org.apache.jena.sparql.algebra.TableFactory ;
+import org.apache.jena.sparql.algebra.op.OpSimJoin;
 import org.apache.jena.sparql.engine.ExecutionContext ;
 import org.apache.jena.sparql.engine.QueryIterator ;
 import org.apache.jena.sparql.engine.binding.Binding ;
@@ -75,6 +76,11 @@ public class Join {
         if ( useNestedLoopLeftJoin )
             return nestedLoopLeftJoin(left, right, conditions, execCxt) ;
         return hashLeftJoin(left, right, conditions, execCxt) ;
+    }
+
+    //TODO: implement this
+    public static QueryIterator simjoin(QueryIterator left, QueryIterator right, OpSimJoin opSimJoin) {
+        return null;
     }
 
     interface JoinOp { 

@@ -23,6 +23,7 @@ import java.util.List ;
 import org.apache.jena.graph.Node ;
 import org.apache.jena.query.SortCondition ;
 import org.apache.jena.sparql.algebra.Table ;
+import org.apache.jena.sparql.algebra.op.OpSimJoin;
 import org.apache.jena.sparql.core.BasicPattern ;
 import org.apache.jena.sparql.core.TriplePath ;
 import org.apache.jena.sparql.core.Var ;
@@ -53,6 +54,7 @@ public interface Evaluator
     public Table minus(Table left, Table right) ;
     public Table union(Table tableLeft, Table tableRight) ;
     public Table condition(Table left, Table right) ;
+    Table simjoin(OpSimJoin opSimJoin, Table left, Table right);
 
     public Table filter(ExprList expressions, Table tableLeft) ;
 

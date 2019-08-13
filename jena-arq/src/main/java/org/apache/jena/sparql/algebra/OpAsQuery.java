@@ -798,6 +798,17 @@ public class OpAsQuery {
             throw new ARQNotImplemented("OpTopN") ;
         }
 
+        @Override
+        public void visit(OpSimJoin opSimJoin) {
+            Element eLeft = asElementGroup(opSimJoin.getLeft()) ;
+            Element eRight = asElementGroup(opSimJoin.getRight()) ;
+
+            ElementSJ elSJ = new ElementSJ() ;
+            elSJ.addElement(eLeft) ;
+            elSJ.addElement(eRight) ;
+            currentGroup().addElement(elSJ) ;
+        }
+
         private static boolean emptyGroup(Element element) {
             if ( !(element instanceof ElementGroup) )
                 return false ;

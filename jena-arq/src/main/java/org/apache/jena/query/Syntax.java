@@ -68,7 +68,7 @@ public class Syntax extends Symbol
     /** The query syntax currently that is standardized, published, SPARQL - the "default SPARQL Query" */ 
     public static final Syntax syntaxSPARQL = syntaxSPARQL_11 ;
 
-    public static Syntax syntaxSPARQL_SJ_11 = new Syntax("http://sj.dcc.uchile.cl/algebra");
+    public static final Syntax syntaxSPARQL_SJ_11 = new Syntax("http://sj.dcc.uchile.cl/algebra");
 
 //    /** The update syntax currently that is standardized, published, SPARQL - the "default SPARQL Update" */ 
 //    private static final Syntax syntaxSPARQL_Update = syntaxSPARQL_11_Update ;

@@ -479,6 +479,11 @@ public class WriterOp
             finish(opTop) ;
         }
 
+        @Override
+        public void visit(OpSimJoin opSimJoin) {
+            visitOp2(opSimJoin, null);
+        }
+
         // Neater would be a pair of explicit SortCondition formatters
         private void formatSortCondition(SortCondition sc) {
             boolean close = true ;

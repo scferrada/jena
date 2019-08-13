@@ -198,6 +198,11 @@ public class WalkerVisitor implements OpVisitorByTypeAndExpr, ExprVisitorFunctio
     }
 
     @Override
+    public void visit(OpSimJoin opSimJoin) {
+        visit2(opSimJoin);
+    }
+
+    @Override
     public void visit(OpAssign opAssign) {
         before(opAssign) ;
         VarExprList varExpr = opAssign.getVarExprList() ;

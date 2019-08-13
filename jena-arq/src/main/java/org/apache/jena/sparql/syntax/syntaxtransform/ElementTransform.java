@@ -47,5 +47,7 @@ public interface ElementTransform
     public Element transform(ElementMinus el, Element eltRHS) ;
     public Element transform(ElementService el, Node service, Element subElt) ;
     public Element transform(ElementSubQuery el, Query query) ;
+
+    Element transform(ElementSJ el, List<Element> elements);
 }
 

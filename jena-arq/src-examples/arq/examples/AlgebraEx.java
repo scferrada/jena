@@ -20,6 +20,7 @@ package arq.examples;
 
 import org.apache.jena.query.Query ;
 import org.apache.jena.query.QueryFactory ;
+import org.apache.jena.query.Syntax;
 import org.apache.jena.sparql.algebra.Algebra ;
 import org.apache.jena.sparql.algebra.Op ;
 import org.apache.jena.sparql.engine.QueryIterator ;
@@ -31,17 +32,17 @@ public class AlgebraEx
 {
     public static void main(String []args)
     {
-        String s = "SELECT DISTINCT ?s { ?s ?p ?o }";
+        String s = "SELECT DISTINCT ?s { ?s ?p ?o } similarity join on (?o) (?r) with distance manhattan as ?d top 2 SELECT DISTINCT ?t { ?t ?p ?r }";
         
         // Parse
-        Query query = QueryFactory.create(s) ;
+        Query query = QueryFactory.create(s, Syntax.syntaxSPARQL_SJ_11) ;
         System.out.println(query) ;
-        
+
         // Generate algebra
         Op op = Algebra.compile(query) ;
         op = Algebra.optimize(op) ;
         System.out.println(op) ;
-        
+        System.exit(-1);
         // Execute it.
         QueryIterator qIter = Algebra.exec(op, ExQuerySelect1.createModel()) ;
         

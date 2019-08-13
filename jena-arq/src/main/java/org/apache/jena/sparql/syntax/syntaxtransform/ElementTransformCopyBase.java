@@ -142,4 +142,11 @@ public class ElementTransformCopyBase implements ElementTransform {
             return el ;
         return new ElementSubQuery(query) ;
     }
+
+    @Override
+    public Element transform(ElementSJ el, List<Element> elements) {
+        if (el.getElements()==elements)
+                return el;
+        return new ElementSJ(elements);
+    }
 }

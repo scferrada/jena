@@ -388,7 +388,33 @@ public class VarFinder
         
         @Override
         public void visit(OpTopN opTop)             { mergeVars(opTop.getSubOp()) ; }
-        
+
+        @Override
+        public void visit(OpSimJoin opSimJoin) {
+            VarUsageVisitor usage1 = VarUsageVisitor.apply(opSimJoin.getLeft());
+            VarUsageVisitor usage2 = VarUsageVisitor.apply(opSimJoin.getRight());
+
+            // Fixed both sides.
+            Set<Var> fixed = SetUtils.intersection(usage1.defines, usage2.defines) ;
+            defines.addAll(fixed) ;
+
+            // Fixed one side or the other, not both.
+            Set<Var> notFixed = SetUtils.symmetricDifference(usage1.defines, usage2.defines) ;
+            optDefines.addAll(notFixed) ;
+
+            optDefines.addAll(usage1.optDefines);
+            optDefines.addAll(usage2.optDefines);
+
+            filterMentions.addAll(usage1.filterMentions);
+            filterMentions.addAll(usage2.filterMentions);
+
+            filterMentionsOnly.addAll(usage1.filterMentionsOnly);
+            filterMentionsOnly.addAll(usage2.filterMentionsOnly);
+
+            assignMentions.addAll(usage1.assignMentions);
+            assignMentions.addAll(usage2.assignMentions);
+        }
+
         @Override
         public void visit(OpOrder opOrder) { 
             mergeVars(opOrder.getSubOp()) ;

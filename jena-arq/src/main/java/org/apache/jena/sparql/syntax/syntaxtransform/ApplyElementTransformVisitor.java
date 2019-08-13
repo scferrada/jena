@@ -204,6 +204,14 @@ class ApplyElementTransformVisitor implements ElementVisitor {
         push(new ElementSubQuery(newQuery)) ;
     }
 
+    @Override
+    public void visit(ElementSJ el) {
+        ElementSJ newElt = new ElementSJ() ;
+        transformFromTo(el.getElements(), newElt.getElements()) ;
+        Element el2 = transform.transform(el, newElt.getElements()) ;
+        push(el2) ;
+    }
+
     private Node transformNode(Node n) {
         if ( exprTransform == null )
             return n ;

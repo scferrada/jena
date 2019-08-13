@@ -70,5 +70,8 @@ public class ElementVisitorBase implements ElementVisitor
     public void visit(ElementSubQuery el)       { }
 
     @Override
+    public void visit(ElementSJ elementSJ) {    }
+
+    @Override
     public void visit(ElementPathBlock el)      { }
 }

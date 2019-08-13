@@ -208,6 +208,15 @@ public class ElementWalker
         }
 
         @Override
+        public void visit(ElementSJ el) {
+            before(el) ;
+            for ( Element e : el.getElements() )
+                e.visit(this) ;
+            proc.visit(el) ;
+            after(el) ;
+        }
+
+        @Override
         public void visit(ElementPathBlock el)
         {
             before(el) ;

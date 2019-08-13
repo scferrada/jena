@@ -267,6 +267,11 @@ public class ApplyTransformVisitor implements OpVisitorByTypeAndExpr, ExprVisito
     }
 
     @Override
+    public void visit(OpSimJoin opSimJoin) {
+        visit2(opSimJoin);
+    }
+
+    @Override
     public void visit0(Op0 op) {
         push(opStack, op.apply(opTransform)) ;
     }

@@ -73,8 +73,13 @@ public class TransformBase implements Transform
     @Override
     public Op transform(OpUnion opUnion, Op left, Op right)         { return opUnion ; }
     @Override
-    public Op transform(OpConditional opCond, Op left, Op right)    { return opCond ; } 
-    
+    public Op transform(OpConditional opCond, Op left, Op right)    { return opCond ; }
+
+    @Override
+    public Op transform(OpSimJoin opSimJoin, Op left, Op right) {
+        return opSimJoin;
+    }
+
     @Override
     public Op transform(OpSequence opSequence, List<Op> elts)       { return opSequence ; }
     @Override

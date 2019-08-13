@@ -47,8 +47,8 @@ public class ParserSPARQLSJ11 extends ParserSPARQL11 {
             List<Var> attr1 = new LinkedList<>();
             List<Var> attr2 = new LinkedList<>();
             String[] parts = attrs.split("\\) *\\(");
-            String[] str1 = parts[0].split("\\?");
-            String[] str2 = parts[1].split("\\?");
+            String[] str1 = parts[0].replace("(", "").trim().split("\\?");
+            String[] str2 = parts[1].replace(")", "").trim().split("\\?");
 
             for (int i = 1 ; i < str1.length; i++) attr1.add(Var.alloc(Var.canonical(str1[i].trim())));
             for (int i = 1 ; i < str2.length; i++) attr2.add(Var.alloc(Var.canonical(str2[i].trim())));

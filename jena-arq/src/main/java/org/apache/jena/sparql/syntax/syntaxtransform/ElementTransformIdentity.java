@@ -70,5 +70,10 @@ public final class ElementTransformIdentity implements ElementTransform
     public Element transform(ElementService el, Node service, Element subElt) { return el ; }
     @Override
     public Element transform(ElementSubQuery el, Query query) { return el ; }
+
+    @Override
+    public Element transform(ElementSJ el, List<Element> elements) {
+        return el;
+    }
 }
 

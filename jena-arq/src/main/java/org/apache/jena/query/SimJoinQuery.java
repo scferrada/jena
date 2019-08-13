@@ -51,7 +51,7 @@ public class SimJoinQuery extends Query{
     }
 
     public void setDistance(String distance) {
-        this.distance = DistanceFunction.valueOf(distance);
+        this.distance = DistanceFunction.valueOf(distance.toUpperCase());
     }
 
     public Var getDist() {
@@ -73,8 +73,27 @@ public class SimJoinQuery extends Query{
     public String toString(){
         StringBuilder sb = new StringBuilder();
         sb.append(Q1.toString())
-                .append("\nyei\n")
+                .append("SIMILARITY JOIN ON ")
+                .append(print(attr1))
+                .append(print(attr2))
+                .append("\nWITH DISTANCE ")
+                .append(distance.toString())
+                .append(" AS ")
+                .append(dist)
+                .append("\nTOP ")
+                .append(k).append("\n")
                 .append(Q2.toString());
+        return sb.toString();
+    }
+
+    private String print(List<Var> attr) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(" (");
+        for (Var v: attr) {
+            sb.append(v.toString())
+                    .append(" ");
+        }
+        sb.append(") ");
         return sb.toString();
     }
 }

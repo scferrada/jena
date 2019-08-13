@@ -146,6 +146,13 @@ public class ElementWalker_New {
         }
 
         @Override
+        public void visit(ElementSJ el) {
+            for ( Element e : el.getElements() )
+                e.visit(this) ;
+            elementVisitor.visit(el) ;
+        }
+
+        @Override
         public void visit(ElementPathBlock el) {
             elementVisitor.visit(el) ;
         }

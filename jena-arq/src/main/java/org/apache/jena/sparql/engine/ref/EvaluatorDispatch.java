@@ -280,6 +280,14 @@ public class EvaluatorDispatch implements OpVisitor
     }
 
     @Override
+    public void visit(OpSimJoin opSimJoin) {
+        Table left = eval(opSimJoin.getLeft()) ;
+        Table right = eval(opSimJoin.getRight()) ;
+        Table table = evaluator.simjoin(opSimJoin, left, right) ;
+        push(table) ;
+    }
+
+    @Override
     public void visit(OpProject opProject)
     {
         Table table = eval(opProject.getSubOp()) ;

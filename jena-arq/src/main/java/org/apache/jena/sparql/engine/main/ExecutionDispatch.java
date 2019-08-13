@@ -324,6 +324,13 @@ class ExecutionDispatch implements OpVisitor
         push(qIter) ;
     }
 
+    @Override
+    public void visit(OpSimJoin opSimJoin) {
+        QueryIterator input = pop() ;
+        QueryIterator qIter = opExecutor.execute(opSimJoin, input) ;
+        push(qIter) ;
+    }
+
     private void push(QueryIterator qIter)  { stack.push(qIter) ; }
     private QueryIterator pop()
     { 

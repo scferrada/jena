@@ -36,4 +36,6 @@ public interface ElementVisitor
     public void visit(ElementMinus el) ;
     public void visit(ElementService el) ;
     public void visit(ElementSubQuery el) ;
+
+    void visit(ElementSJ el);
 }

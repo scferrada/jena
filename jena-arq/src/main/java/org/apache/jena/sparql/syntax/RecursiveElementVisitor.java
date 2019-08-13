@@ -97,6 +97,14 @@ public class RecursiveElementVisitor implements ElementVisitor
     public void endElement(ElementPathBlock el)     {}
     public void startElement(ElementPathBlock el)   {}
 
+    private void endSubElement(ElementSJ el, Element subElement) { }
+
+    private void endElement(ElementSJ el) { }
+
+    private void startSubElement(ElementSJ el, Element subElement) { }
+
+    private void startElement(ElementSJ el) { }
+
     protected ElementVisitor visitor = null ;
     
     // ---- 
@@ -233,6 +241,19 @@ public class RecursiveElementVisitor implements ElementVisitor
         startElement(el) ;
         endElement(el) ;
     }
+
+    @Override
+    public void visit(ElementSJ el) {
+        startElement(el) ;
+        for ( Element subElement : el.getElements() )
+        {
+            startSubElement(el, subElement) ;
+            subElement.visit(this) ;
+            endSubElement(el, subElement) ;
+        }
+        endElement(el) ;
+    }
+
     @Override
     public void visit(ElementPathBlock el)
     {

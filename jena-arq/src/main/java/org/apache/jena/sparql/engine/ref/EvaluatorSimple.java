@@ -27,6 +27,7 @@ import org.apache.jena.query.ResultSet ;
 import org.apache.jena.query.ResultSetFormatter ;
 import org.apache.jena.query.SortCondition ;
 import org.apache.jena.sparql.algebra.* ;
+import org.apache.jena.sparql.algebra.op.OpSimJoin;
 import org.apache.jena.sparql.algebra.table.TableN ;
 import org.apache.jena.sparql.core.BasicPattern ;
 import org.apache.jena.sparql.core.TriplePath ;
@@ -192,6 +193,26 @@ public class EvaluatorSimple implements Evaluator
         }
         right.close();
         return left ;
+    }
+
+    @Override
+    public Table simjoin(OpSimJoin opSimJoin, Table left, Table right) {
+        if ( debug )
+        {
+            System.out.println("Similarity Join") ;
+            dump(left) ;
+            dump(right) ;
+        }
+        QueryIterConcat output = new QueryIterConcat(execCxt) ;
+        output.add(left.iterator(execCxt)) ;
+        output.add(right.iterator(execCxt)) ;
+        return simJoinWorker(output) ;
+    }
+
+    //TODO: implement this
+    private Table simJoinWorker(QueryIterConcat output) {
+        TableN results = new TableN() ;
+        return results;
     }
 
     @Override

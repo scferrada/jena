@@ -430,6 +430,26 @@ public class FormatterElement extends FormatterBase implements ElementVisitor {
         out.decIndent(INDENT);
         out.print("}");
     }
+    //todo: ver qué onda esto
+    @Override
+    public void visit(ElementSJ el) {
+        out.incIndent(INDENT);
+
+        boolean first = true;
+        for ( Element subElement : el.getElements() ) {
+            if ( !first ) {
+                out.decIndent(INDENT);
+                out.newline();
+                out.print("SIMILARITY JOIN");
+                out.newline();
+                out.incIndent(INDENT);
+            }
+            visitAsGroup(subElement);
+            first = false;
+        }
+
+        out.incIndent(INDENT);
+    }
 
     public void visitAsGroup(Element el) {
         boolean needBraces = !((el instanceof ElementGroup) || (el instanceof ElementSubQuery));
