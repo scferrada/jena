@@ -118,6 +118,21 @@
       <artifactId>awaitility</artifactId>
       <scope>test</scope>
     </dependency>
+      <dependency>
+          <groupId>org.ejml</groupId>
+          <artifactId>all</artifactId>
+          <version>0.30</version>
+      </dependency>
+    <dependency>
+      <groupId>org.ejml</groupId>
+      <artifactId>all</artifactId>
+      <version>0.30</version>
+    </dependency>
+      <dependency>
+          <groupId>org.ujmp</groupId>
+          <artifactId>ujmp-complete</artifactId>
+          <version>0.3.0</version>
+      </dependency>
 
   </dependencies>
 

@@ -5,6 +5,7 @@ import org.apache.jena.query.QueryParseException;
 import org.apache.jena.query.SimJoinQuery;
 import org.apache.jena.query.Syntax;
 import org.apache.jena.sparql.core.Var;
+import org.apache.jena.sparql.lang.sparql_11.ParseException;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -50,8 +51,13 @@ public class ParserSPARQLSJ11 extends ParserSPARQL11 {
             String[] str1 = parts[0].replace("(", "").trim().split("\\?");
             String[] str2 = parts[1].replace(")", "").trim().split("\\?");
 
-            for (int i = 1 ; i < str1.length; i++) attr1.add(Var.alloc(Var.canonical(str1[i].trim())));
-            for (int i = 1 ; i < str2.length; i++) attr2.add(Var.alloc(Var.canonical(str2[i].trim())));
+            for (int i = 1 ; i < str1.length; i++)
+                if(str1[i].trim().length()>0)
+                    attr1.add(Var.alloc(Var.canonical(str1[i].trim())));
+            for (int i = 1 ; i < str2.length; i++)
+                if(str2[i].trim().length()>0)
+                    attr2.add(Var.alloc(Var.canonical(str2[i].trim())));
+            if (attr1.size()!=attr2.size()) throw new IllegalArgumentException("Number of dimensions to join must match.");
 
             sjQuery.setAttr1(attr1);
             sjQuery.setAttr2(attr2);

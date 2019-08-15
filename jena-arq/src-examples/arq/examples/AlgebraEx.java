@@ -32,8 +32,8 @@ public class AlgebraEx
 {
     public static void main(String []args)
     {
-        String s = "SELECT DISTINCT ?s { ?s ?p ?o } similarity join on (?o) (?r) with distance manhattan as ?d top 2 SELECT DISTINCT ?t { ?t ?p ?r }";
-        
+        String s = "SELECT DISTINCT ?s { ?s ?p ?o } similarity join on (?o ?p) (?r ?p) with distance manhattan as ?d top 2 SELECT DISTINCT ?t { ?t ?p ?r }";
+        //String s = "SELECT DISTINCT ?s { ?s ?p ?o }";
         // Parse
         Query query = QueryFactory.create(s, Syntax.syntaxSPARQL_SJ_11) ;
         System.out.println(query) ;
@@ -42,7 +42,7 @@ public class AlgebraEx
         Op op = Algebra.compile(query) ;
         op = Algebra.optimize(op) ;
         System.out.println(op) ;
-        System.exit(-1);
+
         // Execute it.
         QueryIterator qIter = Algebra.exec(op, ExQuerySelect1.createModel()) ;
         

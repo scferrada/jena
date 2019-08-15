@@ -93,4 +93,12 @@ public class OpSimJoin extends Op2 {
     public void setAttr2(List<Var> attr2) {
         this.attr2 = attr2;
     }
+
+    public void setLeft(Op l){
+        this.left = l;
+    }
+
+    public void setRight(Op r){
+        this.right = r;
+    }
 }

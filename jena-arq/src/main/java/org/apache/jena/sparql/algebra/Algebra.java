@@ -27,6 +27,7 @@ import org.apache.jena.query.Dataset ;
 import org.apache.jena.query.Query ;
 import org.apache.jena.rdf.model.Model ;
 import org.apache.jena.shared.PrefixMapping ;
+import org.apache.jena.sparql.algebra.op.OpSimJoin;
 import org.apache.jena.sparql.algebra.optimize.Optimize ;
 import org.apache.jena.sparql.core.DatasetGraph ;
 import org.apache.jena.sparql.core.DatasetGraphFactory ;
@@ -62,6 +63,14 @@ public class Algebra
         // Call-through to somewhere to manage all the optimizations
         if ( op == null )
             return null ;
+        if(op instanceof OpSimJoin){
+            OpSimJoin opsj = (OpSimJoin) op;
+            Op optLeft = Optimize.optimize(opsj.getLeft(), context);
+            Op optRight = Optimize.optimize(opsj.getRight(), context);
+            opsj.setLeft(optLeft);
+            opsj.setRight(optRight);
+            return opsj;
+        }
         return Optimize.optimize(op, context) ;
     }   
     

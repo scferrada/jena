@@ -89,7 +89,7 @@
     <ver.httpcore-osgi>${ver.httpcore}</ver.httpcore-osgi>
     <ver.httpclient-osgi>${ver.httpclient}</ver.httpclient-osgi>
     <ver.shiro>1.2.6</ver.shiro>
-    <ver.lucene>7.4.0</ver.lucene>
+    <ver.lucene>8.2.0</ver.lucene>
 
     <ver.elasticsearch>6.4.2</ver.elasticsearch>
     <!-- make sure that the plugin version is compatible with the elasticsearch version -->
@@ -299,6 +299,12 @@
       </dependency>
 
       <dependency>
+        <groupId>org.ujmp</groupId>
+        <artifactId>ujmp-complete</artifactId>
+        <version>0.3.0</version>
+      </dependency>
+
+      <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
         <version>${ver.httpclient}</version>
@@ -497,7 +503,13 @@
       <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-spatial-extras</artifactId>
-        <version>${ver.lucene}</version>
+        <version>8.2.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.lucene</groupId>
+        <artifactId>lucene-spatial</artifactId>
+        <version>8.2.0</version>
       </dependency>
 
       <dependency>
@@ -839,15 +851,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.0.0-M3</version>
-          <!-- 
-               Bug: SUREFIRE-1588
-               https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=911925
-          -->
-          <!--configuration>
-            <useSystemClassLoader>false</useSystemClassLoader>
-          </configuration>
-          -->
+          <version>3.0.0-M1</version>
         </plugin>
 
         <plugin>
@@ -1011,11 +1015,11 @@
                        "maven-remote-resources-plugin (goal "process") is ignored by m2e." 
                   -->
                   <pluginExecutionFilter>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-enforcer-plugin</artifactId>
-                    <versionRange>[1.0.0,)</versionRange>
+                    <groupId>org.bsc.maven</groupId>
+                    <artifactId>maven-processor-plugin</artifactId>
+                    <versionRange>[2.0.2,)</versionRange>
                     <goals>
-                      <goal>enforce</goal>
+                      <goal>process</goal>
                     </goals>
                   </pluginExecutionFilter>
                   <action>
@@ -1104,6 +1108,7 @@
               <ignore>org.slf4j.*</ignore>
             </ignores>
           </instrumentation>
+          <check/>
         </configuration>
       </plugin>
 
@@ -1124,7 +1129,6 @@
         <artifactId>maven-pmd-plugin</artifactId>
         <version>3.8</version>
         <configuration>
-          <linkXref>true</linkXref>
           <sourceEncoding>utf-8</sourceEncoding>
           <minimumTokens>100</minimumTokens>
         </configuration>
@@ -1133,7 +1137,7 @@
       <plugin>
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>3.1.1</version>
+        <version>3.1.7</version>
       </plugin>
     </plugins>
   </reporting>

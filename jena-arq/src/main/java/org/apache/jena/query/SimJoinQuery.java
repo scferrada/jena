@@ -2,6 +2,7 @@ package org.apache.jena.query;
 
 import org.apache.jena.sparql.core.Var;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class SimJoinQuery extends Query{
@@ -89,11 +90,16 @@ public class SimJoinQuery extends Query{
     private String print(List<Var> attr) {
         StringBuilder sb = new StringBuilder();
         sb.append(" (");
-        for (Var v: attr) {
-            sb.append(v.toString())
-                    .append(" ");
-        }
+        sb.append(String.join(" ", names(attr)));
         sb.append(") ");
         return sb.toString();
+    }
+
+    private Iterable<? extends CharSequence> names(List<Var> attr) {
+        List<String> res = new LinkedList<>();
+        for (Var v: attr) {
+            res.add(v.toString());
+        }
+        return res;
     }
 }

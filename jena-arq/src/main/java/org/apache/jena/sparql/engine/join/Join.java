@@ -78,9 +78,8 @@ public class Join {
         return hashLeftJoin(left, right, conditions, execCxt) ;
     }
 
-    //TODO: implement this
-    public static QueryIterator simjoin(QueryIterator left, QueryIterator right, OpSimJoin opSimJoin) {
-        return null;
+    public static QueryIterator simjoin(QueryIterator left, QueryIterator right, OpSimJoin opSimJoin, ExecutionContext execCxt) {
+        return new QueryIterSimilarityJoin(left, right, opSimJoin, execCxt).compute();
     }
 
     interface JoinOp { 

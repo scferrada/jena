@@ -96,9 +96,7 @@ public class AlgebraGenerator
     {
         if(query instanceof SimJoinQuery){
             Op oq1 = compile(((SimJoinQuery) query).getQ1());
-            oq1 = compileModifiers(((SimJoinQuery) query).getQ1(), oq1);
             Op oq2 = compile(((SimJoinQuery) query).getQ2());
-            oq2 = compileModifiers(((SimJoinQuery) query).getQ2(), oq2);
             OpSimJoin sj = new OpSimJoin(oq1, oq2);
             sj.setDistanceFunc(((SimJoinQuery) query).getDistance());
             sj.setDist(((SimJoinQuery) query).getDist());
