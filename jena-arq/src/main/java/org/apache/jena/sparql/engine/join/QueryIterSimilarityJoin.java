@@ -1,54 +1,132 @@
 package org.apache.jena.sparql.engine.join;
 
+import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.atlas.iterator.Iter;
+import org.apache.jena.query.DistanceFunction;
 import org.apache.jena.sparql.algebra.op.OpSimJoin;
+import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.ExecutionContext;
 import org.apache.jena.sparql.engine.QueryIterator;
 import org.apache.jena.sparql.engine.binding.Binding;
-import org.ujmp.core.DenseMatrix;
+import org.apache.jena.sparql.engine.iterator.QueryIter2;
+import org.apache.jena.sparql.engine.iterator.QueryIterNullIterator;
+import org.apache.jena.sparql.serializer.SerializationContext;
 
 import java.util.*;
 
-public class QueryIterSimilarityJoin{
+public class QueryIterSimilarityJoin extends QueryIter2 {
 
-    private long s_countLHS     = 0;
-    private long s_countRHS     = 0;
+    private final int k;
+    private long s_countLHS = 0;
+    private long s_countRHS = 0;
     private long s_countResults = 0;
 
+    private final Var distVar;
+    private final DistanceFunction distFunc;
+
     private final List<Binding> leftRows;
-    private QueryIterator   left;
-    private QueryIterator       right;
-    private Binding             rowRight = null;
+    private Iterator<Binding> left;
+    private QueryIterator right;
+    private Binding rowRight = null;
 
-    private Binding slot     = null;
+    private final Iterable<Var> attrRight;
+    private final Iterable<Var> attrLeft;
+
+    private Binding slot = null;
     private boolean finished = false;
-
-    private  OpSimJoin opSimJoin;
 
     private Map<Integer, PriorityQueue> results = new HashMap<>();
 
-    public QueryIterSimilarityJoin(QueryIterator left, QueryIterator right, OpSimJoin opSimJoin, ExecutionContext execCxt) {
+    public class Neighbor<K, V>{
+        private K key;
+        private V distance;
+
+        protected Neighbor(K key, V distance) {
+            this.key = key;
+            this.distance = distance;
+        }
+
+        public K getKey() {
+            return key;
+        }
+
+        public V getDistance() {
+            return distance;
+        }
+    }
+
+    private QueryIterSimilarityJoin(QueryIterator left, QueryIterator right, OpSimJoin opSimJoin, ExecutionContext execCxt) {
+        super(left,right,execCxt);
         this.right = right;
-        this.left = left;
-        this.opSimJoin = opSimJoin;
+        this.k = opSimJoin.getK();
+        this.attrLeft = opSimJoin.getAttr1();
+        this.attrRight = opSimJoin.getAttr2();
+        this.distVar = opSimJoin.getDist();
+        this.distFunc = opSimJoin.getDistanceFunc();
         this.leftRows = Iter.toList(left);
+        this.left = leftRows.iterator();
         s_countLHS = leftRows.size();
         for(int i=0; i<s_countLHS; i++){
             results.put(i, new PriorityQueue<Double>(opSimJoin.getK(),Collections.reverseOrder()));
         }
+        quickJoin();
+    }
+    //TODO: do external quickjoin
+    private void quickJoin() {
+
     }
 
     //TODO:la mayía pasa aqui
-    public QueryIterator compute() {
-        //DenseMatrix64F leftData = new DenseMatrix64F(leftRows.size(), opSimJoin.getAttr1().size());
-        //DenseMatrix64F rightData = new DenseMatrix64F();
-        DenseMatrix x = DenseMatrix.Factory.zeros(4,4);
-        for ( ; left.hasNext() ; )
-        {
-            Binding b = left.nextBinding() ;
-            System.out.println(b) ;
+    public static QueryIterator create(QueryIterator left, QueryIterator right, OpSimJoin opSimJoin, ExecutionContext execCxt) {
+        if ( ! left.hasNext() ) {
+            left.close() ;
+            right.close() ;
+            return QueryIterNullIterator.create(execCxt) ;
         }
-        left.close() ;
-        return null;
+        if ( ! right.hasNext() ) {
+            right.close() ;
+            return left ;
+        }
+        return new QueryIterSimilarityJoin(left, right, opSimJoin, execCxt);
     }
+
+    /**
+     * Implement this, not hasNext()
+     */
+    @Override
+    protected boolean hasNextBinding() {
+        return left.hasNext();
+    }
+
+    /**
+     * Implement this, not next() or nextBinding()
+     * Returning null is turned into NoSuchElementException
+     * Does not need to call hasNext (can presume it is true)
+     */
+    @Override
+    protected Binding moveToNextBinding() {
+        return left.next();
+    }
+
+    /**
+     * Cancellation of the query execution is happening
+     */
+    @Override
+    protected void requestSubCancel() {
+
+    }
+
+    /**
+     * Pass on the close method - no need to close the left or right QueryIterators passed to the QueryIter2 constructor
+     */
+    @Override
+    protected void closeSubIterator() {
+
+    }
+
+    @Override
+    public void output(IndentedWriter out, SerializationContext sCxt) {
+        super.output(out, sCxt);
+    }
+
 }
