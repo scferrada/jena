@@ -18,34 +18,41 @@
 
 package org.apache.jena.sparql.algebra;
 
-import java.util.Iterator ;
-
-import org.apache.jena.graph.Graph ;
-import org.apache.jena.graph.Node ;
-import org.apache.jena.query.ARQ ;
-import org.apache.jena.query.Dataset ;
-import org.apache.jena.query.Query ;
-import org.apache.jena.rdf.model.Model ;
-import org.apache.jena.shared.PrefixMapping ;
+import org.apache.jena.datatypes.xsd.XSDDatatype;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.query.ARQ;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.Query;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.algebra.op.OpSimJoin;
-import org.apache.jena.sparql.algebra.optimize.Optimize ;
-import org.apache.jena.sparql.core.DatasetGraph ;
-import org.apache.jena.sparql.core.DatasetGraphFactory ;
-import org.apache.jena.sparql.core.Var ;
-import org.apache.jena.sparql.engine.Plan ;
-import org.apache.jena.sparql.engine.QueryEngineFactory ;
-import org.apache.jena.sparql.engine.QueryEngineRegistry ;
-import org.apache.jena.sparql.engine.QueryIterator ;
-import org.apache.jena.sparql.engine.binding.Binding ;
-import org.apache.jena.sparql.engine.binding.BindingFactory ;
-import org.apache.jena.sparql.engine.binding.BindingMap ;
-import org.apache.jena.sparql.engine.binding.BindingRoot ;
-import org.apache.jena.sparql.engine.ref.QueryEngineRef ;
-import org.apache.jena.sparql.sse.Item ;
-import org.apache.jena.sparql.sse.SSE ;
-import org.apache.jena.sparql.sse.builders.BuilderOp ;
-import org.apache.jena.sparql.syntax.Element ;
-import org.apache.jena.sparql.util.Context ;
+import org.apache.jena.sparql.algebra.optimize.Optimize;
+import org.apache.jena.sparql.core.DatasetGraph;
+import org.apache.jena.sparql.core.DatasetGraphFactory;
+import org.apache.jena.sparql.core.Var;
+import org.apache.jena.sparql.engine.Plan;
+import org.apache.jena.sparql.engine.QueryEngineFactory;
+import org.apache.jena.sparql.engine.QueryEngineRegistry;
+import org.apache.jena.sparql.engine.QueryIterator;
+import org.apache.jena.sparql.engine.binding.Binding;
+import org.apache.jena.sparql.engine.binding.BindingFactory;
+import org.apache.jena.sparql.engine.binding.BindingMap;
+import org.apache.jena.sparql.engine.binding.BindingRoot;
+import org.apache.jena.sparql.engine.iterator.QueryIter;
+import org.apache.jena.sparql.engine.join.QueryIterSimilarityJoin;
+import org.apache.jena.sparql.engine.ref.QueryEngineRef;
+import org.apache.jena.sparql.sse.Item;
+import org.apache.jena.sparql.sse.SSE;
+import org.apache.jena.sparql.sse.builders.BuilderOp;
+import org.apache.jena.sparql.syntax.Element;
+import org.apache.jena.sparql.util.Context;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.PriorityQueue;
 
 /** Utilities to produce SPARQL algebra */
 public class Algebra
@@ -146,7 +153,7 @@ public class Algebra
 
     static public QueryIterator exec(Op op, Model model)
     {
-        return exec(op, model.getGraph()) ;
+        return exec(op, model.getGraph());
     }
 
     static public QueryIterator exec(Op op, Graph graph)
@@ -230,5 +237,16 @@ public class Algebra
                 return false ;
         }
         return true ;
+    }
+
+    public static List<Binding> join(Binding source, PriorityQueue<QueryIterSimilarityJoin.Neighbor> neighbors, Var distVar) {
+        List<Binding> res = new LinkedList<>();
+        for(QueryIterSimilarityJoin.Neighbor n : neighbors){
+            BindingMap b = BindingFactory.create(source);
+            b.addAll((Binding) n.getKey());
+            b.add(distVar, NodeFactory.createLiteralByValue(n.getDistance(), XSDDatatype.XSDdouble));
+            res.add(b);
+        }
+        return res;
     }
 }

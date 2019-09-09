@@ -21,6 +21,7 @@ package arq.examples;
 import org.apache.jena.query.Query ;
 import org.apache.jena.query.QueryFactory ;
 import org.apache.jena.query.Syntax;
+import org.apache.jena.rdf.model.Model;
 import org.apache.jena.sparql.algebra.Algebra ;
 import org.apache.jena.sparql.algebra.Op ;
 import org.apache.jena.sparql.engine.QueryIterator ;
@@ -32,7 +33,9 @@ public class AlgebraEx
 {
     public static void main(String []args)
     {
-        String s = "SELECT DISTINCT ?s { ?s ?p ?o } similarity join on (?s) (?t) with distance manhattan as ?d top 2 SELECT DISTINCT ?t { ?t ?p ?o }";
+        Model model = ExQuerySelect2.createSimModel();
+        long start = System.nanoTime();
+        String s = "SELECT DISTINCT ?id ?a1 ?b1 { ?id <http://ex.com/a> ?a1; <http://ex.com/b> ?b1 } similarity join on (?a1 ?b1) (?a2 ?b2) with distance manhattan as ?d top 2 SELECT DISTINCT ?id2 ?a2 ?b2 { ?id2 <http://ex.com/a> ?a2; <http://ex.com/b> ?b2 }";
         //String s = "SELECT DISTINCT ?s { ?s ?p ?o }";
         // Parse
         Query query = QueryFactory.create(s, Syntax.syntaxSPARQL_SJ_11) ;
@@ -42,7 +45,7 @@ public class AlgebraEx
         op = Algebra.optimize(op) ;
 
         // Execute it.
-        QueryIterator qIter = Algebra.exec(op, ExQuerySelect1.createModel()) ;
+        QueryIterator qIter = Algebra.exec(op, model) ;
         
         // Results
         for ( ; qIter.hasNext() ; )
@@ -51,5 +54,7 @@ public class AlgebraEx
             System.out.println(b.toString()) ;
         }
         qIter.close() ;
+        long end = System.nanoTime();
+        System.out.println((end-start)/1000000.0);
     }
 }

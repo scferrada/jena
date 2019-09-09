@@ -20,10 +20,12 @@ package arq.examples;
 
 
 // The ARQ application API.
+import org.apache.jena.assembler.Mode;
 import org.apache.jena.atlas.io.IndentedWriter ;
 import org.apache.jena.query.* ;
 import org.apache.jena.rdf.model.Model ;
 import org.apache.jena.rdf.model.ModelFactory ;
+import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource ;
 import org.apache.jena.vocabulary.DC ;
 
@@ -83,5 +85,17 @@ public class ExQuerySelect2
         r2.addProperty(DC.title, "Advanced techniques for SPARQL") ;
         
         return m ;
+    }
+
+    public static Model createSimModel(){
+        Model m = ModelFactory.createDefaultModel();
+        Property a = m.createProperty("http://ex.com/a");
+        Property b = m.createProperty("http://ex.com/b");
+        int N = 100000;
+        for (int i = 0; i < N; i++) {
+            Resource r = m.createResource("http://ex.com/"+i);
+            r.addProperty(a, ""+i).addProperty(b, ""+i);
+        }
+        return m;
     }
 }
