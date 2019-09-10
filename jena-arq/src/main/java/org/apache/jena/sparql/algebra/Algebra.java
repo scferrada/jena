@@ -41,6 +41,7 @@ import org.apache.jena.sparql.engine.binding.BindingFactory;
 import org.apache.jena.sparql.engine.binding.BindingMap;
 import org.apache.jena.sparql.engine.binding.BindingRoot;
 import org.apache.jena.sparql.engine.iterator.QueryIter;
+import org.apache.jena.sparql.engine.join.QueryIterSim;
 import org.apache.jena.sparql.engine.join.QueryIterSimilarityJoin;
 import org.apache.jena.sparql.engine.ref.QueryEngineRef;
 import org.apache.jena.sparql.sse.Item;
@@ -239,9 +240,9 @@ public class Algebra
         return true ;
     }
 
-    public static List<Binding> join(Binding source, PriorityQueue<QueryIterSimilarityJoin.Neighbor> neighbors, Var distVar) {
+    public static List<Binding> join(Binding source, PriorityQueue<QueryIterSim.Neighbor> neighbors, Var distVar) {
         List<Binding> res = new LinkedList<>();
-        for(QueryIterSimilarityJoin.Neighbor n : neighbors){
+        for(QueryIterSim.Neighbor n : neighbors){
             BindingMap b = BindingFactory.create(source);
             b.addAll((Binding) n.getKey());
             b.add(distVar, NodeFactory.createLiteralByValue(n.getDistance(), XSDDatatype.XSDdouble));

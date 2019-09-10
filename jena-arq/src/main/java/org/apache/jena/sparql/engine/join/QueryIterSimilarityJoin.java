@@ -3,42 +3,17 @@ package org.apache.jena.sparql.engine.join;
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.atlas.iterator.Iter;
 import org.apache.jena.graph.Node;
-import org.apache.jena.query.DistanceFunction;
-import org.apache.jena.sparql.algebra.Algebra;
 import org.apache.jena.sparql.algebra.op.OpSimJoin;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.ExecutionContext;
 import org.apache.jena.sparql.engine.QueryIterator;
 import org.apache.jena.sparql.engine.binding.Binding;
-import org.apache.jena.sparql.engine.iterator.QueryIter2;
 import org.apache.jena.sparql.engine.iterator.QueryIterNullIterator;
 import org.apache.jena.sparql.serializer.SerializationContext;
 
 import java.util.*;
 
-public class QueryIterSimilarityJoin extends QueryIter2 {
-
-    private final int k;
-    private final Iterator<Binding> iterator;
-    private long s_countLHS = 0;
-    private long s_countRHS = 0;
-    private long s_countResults = 0;
-
-    private final Var distVar;
-    private final DistanceFunction distFunc;
-
-    private final List<Binding> leftRows;
-    private Iterator<Binding> left;
-    private QueryIterator right;
-
-    private final List<Var> attrRight;
-    private final List<Var> attrLeft;
-
-    private Binding slot = null;
-    private boolean finished = false;
-
-    private Map<Integer, PriorityQueue<Neighbor>> knn = new HashMap<>();
-    private List<Binding> results = new LinkedList<>();
+public class QueryIterSimilarityJoin extends QueryIterSim {
 
     private QueryIterSimilarityJoin(QueryIterator left, QueryIterator right, OpSimJoin opSimJoin, ExecutionContext execCxt) {
         super(left,right,execCxt);
@@ -60,14 +35,6 @@ public class QueryIterSimilarityJoin extends QueryIter2 {
         iterator = results.iterator();
     }
 
-    private void consolidate() {
-        for (int i: knn.keySet()) {
-            List<Binding> res = Algebra.join(leftRows.get(i), knn.get(i), distVar);
-            results.addAll(res);
-        }
-    }
-
-    //TODO: do external quickjoin
     private void nestedLoop() {
         while (right.hasNext()){
             Binding r = right.nextBinding();
@@ -92,7 +59,7 @@ public class QueryIterSimilarityJoin extends QueryIter2 {
                 double d = Distances.compute(lvals, rvals, distFunc);
                 if (knn.get(i).size() < k){
                     knn.get(i).add(new Neighbor<>(r, d));
-                } else if(d< knn.get(i).peek().distance){
+                } else if(d< knn.get(i).peek().getDistance()){
                     knn.get(i).poll();
                     knn.get(i).add(new Neighbor<>(r, d));
                 }
@@ -100,27 +67,6 @@ public class QueryIterSimilarityJoin extends QueryIter2 {
             }
             left = leftRows.iterator();
         }
-    }
-
-    private boolean sameKey(List<Node> rKey, List<Node> lKey) {
-        if(rKey.size()!=lKey.size())
-            return false;
-        for(int i=0; i<rKey.size();i++){
-            if(!rKey.get(i).getURI().equals(lKey.get(i).getURI()))
-                return false;
-        }
-        return true;
-    }
-
-    private List<Node> getKey(Binding binding, List<Var> vars) {
-        List<Node> key = new ArrayList<>();
-        for (Iterator<Var> it = binding.vars(); it.hasNext(); ) {
-            Var v = it.next();
-            if(!vars.contains(v)){
-                key.add(binding.get(v));
-            }
-        }
-        return key;
     }
 
     public static QueryIterator create(QueryIterator left, QueryIterator right, OpSimJoin opSimJoin, ExecutionContext execCxt) {
@@ -181,40 +127,6 @@ public class QueryIterSimilarityJoin extends QueryIter2 {
     @Override
     public void output(IndentedWriter out, SerializationContext sCxt) {
         super.output(out, sCxt);
-    }
-
-    public static class Neighbor<K>{
-        private K key;
-        private double distance;
-
-        static public Comparator<Neighbor> comparator= (n1, n2) -> n1.distance>n2.distance? -1:1;
-
-        protected Neighbor(K key, double distance) {
-            this.key = key;
-            this.distance = distance;
-        }
-
-        public K getKey() {
-            return key;
-        }
-
-        public double getDistance() {
-            return distance;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Neighbor<?> neighbor = (Neighbor<?>) o;
-            return key.equals(neighbor.key) &&
-                    distance == neighbor.distance;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(key, distance);
-        }
     }
 
 }

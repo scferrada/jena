@@ -91,7 +91,7 @@ public class ExQuerySelect2
         Model m = ModelFactory.createDefaultModel();
         Property a = m.createProperty("http://ex.com/a");
         Property b = m.createProperty("http://ex.com/b");
-        int N = 100000;
+        int N = 1000;
         for (int i = 0; i < N; i++) {
             Resource r = m.createResource("http://ex.com/"+i);
             r.addProperty(a, ""+i).addProperty(b, ""+i);

@@ -46,7 +46,7 @@ public class AlgebraEx
 
         // Execute it.
         QueryIterator qIter = Algebra.exec(op, model) ;
-        
+        long end = System.nanoTime();
         // Results
         for ( ; qIter.hasNext() ; )
         {
@@ -54,7 +54,7 @@ public class AlgebraEx
             System.out.println(b.toString()) ;
         }
         qIter.close() ;
-        long end = System.nanoTime();
+
         System.out.println((end-start)/1000000.0);
     }
 }

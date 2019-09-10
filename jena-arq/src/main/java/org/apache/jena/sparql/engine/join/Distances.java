@@ -1,7 +1,10 @@
 package org.apache.jena.sparql.engine.join;
 
+import flann.metric.Metric;
+import flann.metric.MetricEuclideanSquared;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.DistanceFunction;
+import org.apache.jena.query.QueryExecException;
 
 import java.util.List;
 
@@ -32,5 +35,13 @@ public class Distances {
             d += sq*sq;
         }
         return d;
+    }
+
+    public static Metric getMetric(DistanceFunction distFunc) {
+        switch (distFunc){
+            case EUCLIDEAN:
+            case MANHATTAN:    return new MetricEuclideanSquared();
+            default: throw new QueryExecException("Unsupported distance for approximated nn");
+        }
     }
 }
