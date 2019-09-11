@@ -101,4 +101,8 @@ public class OpSimJoin extends Op2 {
     public void setRight(Op r){
         this.right = r;
     }
+
+    public double getRadius() {
+        return 0;
+    }
 }

@@ -50,10 +50,7 @@ import org.apache.jena.sparql.sse.builders.BuilderOp;
 import org.apache.jena.sparql.syntax.Element;
 import org.apache.jena.sparql.util.Context;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.PriorityQueue;
+import java.util.*;
 
 /** Utilities to produce SPARQL algebra */
 public class Algebra
@@ -240,7 +237,7 @@ public class Algebra
         return true ;
     }
 
-    public static List<Binding> join(Binding source, PriorityQueue<QueryIterSim.Neighbor> neighbors, Var distVar) {
+    public static List<Binding> join(Binding source, Queue<QueryIterSim.Neighbor> neighbors, Var distVar) {
         List<Binding> res = new LinkedList<>();
         for(QueryIterSim.Neighbor n : neighbors){
             BindingMap b = BindingFactory.create(source);
@@ -249,5 +246,17 @@ public class Algebra
             res.add(b);
         }
         return res;
+    }
+
+    public static Binding joinR(Binding rowLeft, Binding rowRight, double distance, Var distVar) {
+        BindingMap b = BindingFactory.create(rowLeft);
+        for ( Iterator<Var> vIter = rowRight.vars() ; vIter.hasNext() ; ) {
+            Var v = vIter.next();
+            Node n = rowRight.get(v) ;
+            if ( ! rowLeft.contains(v) )
+                b.add(v, n) ;
+        }
+        b.add(distVar, NodeFactory.createLiteralByValue(distance, XSDDatatype.XSDdouble));
+        return b;
     }
 }
