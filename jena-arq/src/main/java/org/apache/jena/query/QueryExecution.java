@@ -224,7 +224,7 @@ public interface QueryExecution extends AutoCloseable
     public long getTimeout1() ;
     /** Return the second timeout (overall query execution after first result), in milliseconds: negative if unset */
     public long getTimeout2() ;
-    
+
     //	/** Say whether this QueryExecution is useable or not.
 //	 * An active execution is one that has not been closed, ended or aborted yet.
 //     * May not be supported or meaningful for all QueryExecution implementations.

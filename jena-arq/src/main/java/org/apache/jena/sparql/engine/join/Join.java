@@ -79,7 +79,7 @@ public class Join {
     }
 
     public static QueryIterator simjoin(QueryIterator left, QueryIterator right, OpSimJoin opSimJoin, ExecutionContext execCxt) {
-        return QueryIterVPTSimilarityJoin.create(left, right, opSimJoin, execCxt);
+        return QueryIterSim.create(left, right, opSimJoin, execCxt);
     }
 
     interface JoinOp { 

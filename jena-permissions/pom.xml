@@ -145,7 +145,7 @@
               <goal>jar</goal>
             </goals>
             <configuration>
-              <classedDirectory>target</classedDirectory>
+
               <classifier>example</classifier>
               <includes>
                 <include>../src/example/**</include>
@@ -218,10 +218,6 @@
       <version>${project.version}</version>
       <classifier>tests</classifier>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.shiro</groupId>

@@ -1,16 +1,17 @@
 package org.apache.jena.sparql.engine.join;
 
 import org.apache.jena.atlas.iterator.Iter;
-import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.DistanceFunction;
 import org.apache.jena.sparql.algebra.Algebra;
+import org.apache.jena.sparql.algebra.op.OpRangeSimJoin;
 import org.apache.jena.sparql.algebra.op.OpSimJoin;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.ExecutionContext;
 import org.apache.jena.sparql.engine.QueryIterator;
 import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.engine.iterator.QueryIter2;
+import org.apache.jena.sparql.engine.iterator.QueryIterNullIterator;
 
 import java.util.*;
 
@@ -39,19 +40,24 @@ public class QueryIterSimilarityRange extends QueryIter2 {
         leftRows = Iter.toList(left);
         s_countLHS = leftRows.size();
         this.right = right;
-        this.attrLeft = sim.getAttr1();
-        this.attrRight = sim.getAttr2();
-        this.r = sim.getRadius();
+        this.attrLeft = sim.getLeftAttrs();
+        this.attrRight = sim.getRightAttrs();
+        this.r = ((OpRangeSimJoin)sim).getRadius();
         this.distFunc = sim.getDistanceFunc();
         this.distVar = sim.getDist();
     }
 
-    public QueryIterSimilarityRange(QueryIterator left, QueryIterator right, ExecutionContext execCxt) {
-        super(left, right, execCxt);
-        leftRows = Iter.toList(left);
-        s_countLHS = leftRows.size();
-        this.right = right;
-        r = 0;
+    public static QueryIterator create(QueryIterator left, QueryIterator right, OpSimJoin opSimJoin, ExecutionContext execCxt) {
+        if ( ! left.hasNext() ) {
+            left.close() ;
+            right.close() ;
+            return QueryIterNullIterator.create(execCxt) ;
+        }
+        if ( ! right.hasNext() ) {
+            right.close() ;
+            return left ;
+        }
+        return new QueryIterSimilarityRange(left, right, opSimJoin, execCxt);
     }
 
     /**
@@ -106,7 +112,6 @@ public class QueryIterSimilarityRange extends QueryIter2 {
             }
 
             // There is a rowRight
-            int i = 0;
             while (left.hasNext()) {
                 Binding rowLeft = left.next();
                 List<Node> lvals = new LinkedList<>();
@@ -115,7 +120,6 @@ public class QueryIterSimilarityRange extends QueryIter2 {
                 }
                 double distance = Distances.compute(lvals, rvals, distFunc);
                 if(distance>=this.r){
-                    i++;
                     continue;
                 }
                 Binding r = Algebra.joinR(rowLeft, rowRight, distance, distVar);

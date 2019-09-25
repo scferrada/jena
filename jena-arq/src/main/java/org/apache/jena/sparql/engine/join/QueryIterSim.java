@@ -3,6 +3,7 @@ package org.apache.jena.sparql.engine.join;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.DistanceFunction;
 import org.apache.jena.sparql.algebra.Algebra;
+import org.apache.jena.sparql.algebra.op.OpSimJoin;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.ExecutionContext;
 import org.apache.jena.sparql.engine.QueryIterator;
@@ -39,6 +40,10 @@ public abstract class QueryIterSim extends QueryIter2 {
 
     public QueryIterSim(QueryIterator left, QueryIterator right, ExecutionContext execCxt) {
         super(left, right, execCxt);
+    }
+
+    public static QueryIterator create(QueryIterator left, QueryIterator right, OpSimJoin opSimJoin, ExecutionContext execCxt) {
+        return opSimJoin.createIterator(left, right);
     }
 
     protected void consolidate() {

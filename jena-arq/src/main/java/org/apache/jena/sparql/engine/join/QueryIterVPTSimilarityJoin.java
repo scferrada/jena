@@ -5,6 +5,7 @@ import com.eatthepath.jvptree.VPTree;
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.atlas.iterator.Iter;
 import org.apache.jena.graph.Node;
+import org.apache.jena.sparql.algebra.op.OpKNNSimJoin;
 import org.apache.jena.sparql.algebra.op.OpSimJoin;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.ExecutionContext;
@@ -24,9 +25,9 @@ public class QueryIterVPTSimilarityJoin extends QueryIterSim {
     private QueryIterVPTSimilarityJoin(QueryIterator left, QueryIterator right, OpSimJoin opSimJoin, ExecutionContext execCxt) {
         super(left,right,execCxt);
         this.left_ = left;
-        this.k = opSimJoin.getK();
-        this.attrLeft = opSimJoin.getAttr1();
-        this.attrRight = opSimJoin.getAttr2();
+        this.k = ((OpKNNSimJoin)opSimJoin).getK();
+        this.attrLeft = opSimJoin.getLeftAttrs();
+        this.attrRight = opSimJoin.getRightAttrs();
         this.distVar = opSimJoin.getDist();
         this.distFunc = opSimJoin.getDistanceFunc();
         this.rightRows = Iter.toList(right);
@@ -35,7 +36,7 @@ public class QueryIterVPTSimilarityJoin extends QueryIterSim {
         s_countLHS = rightRows.size();
         s_countResults = s_countLHS * k;
         for(int i=0; i<s_countLHS; i++){
-            knn.put(i, new PriorityQueue<>(opSimJoin.getK(), Neighbor.comparator));
+            knn.put(i, new PriorityQueue<>(((OpKNNSimJoin)opSimJoin).getK(), Neighbor.comparator));
         }
         List<VPVector<Binding>> data = materialize();
         vpJoin(data);

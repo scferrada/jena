@@ -64,10 +64,7 @@
     </dependency>
 
     <!-- Logging :  Needed because the Fuseki command line manages logging -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
+
 
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -75,17 +72,6 @@
       <optional>true</optional>
     </dependency>
 
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <optional>true</optional>
-    </dependency>
-
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
 
     <!-- micrometer -->
     <dependency>
@@ -96,6 +82,10 @@
     <dependency>
       <groupId>io.micrometer</groupId>
       <artifactId>micrometer-registry-prometheus</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
     </dependency>
 
   </dependencies>

@@ -30,6 +30,7 @@ maven-eclipse.xml
 # Other
 .DS_Store
 hs_err_*
+data/
 
 # Binaries
 *.jar

@@ -584,6 +584,15 @@ public class OpRewriter implements OpVisitor {
 				opTop.getConditions()));
 	}
 
+	@Override
+	public void visit(OpSimJoin opSimJoin) {
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("Starting visiting OpJoin");
+		}
+		final OpRewriter rewriter = new OpRewriter(securityEvaluator, graphIRI);
+		addOp(opSimJoin.copy(rewriteOp2(opSimJoin, rewriter), rewriter.getResult()));
+	}
+
 	/**
 	 * Converts to BGP
 	 */

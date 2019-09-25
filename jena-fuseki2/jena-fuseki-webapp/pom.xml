@@ -73,10 +73,6 @@
     </dependency>
 
     <!-- Logging :  Needed because the Fuseki command line manages logging -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
 
     <!-- The jena parent POM has <optional>true</optional> -->
     <dependency>
@@ -105,12 +101,6 @@
       <artifactId>jena-base</artifactId>
       <version>3.13.0-SNAPSHOT</version>
       <classifier>tests</classifier>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
 

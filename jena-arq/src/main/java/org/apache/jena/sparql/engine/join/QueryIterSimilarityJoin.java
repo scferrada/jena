@@ -3,6 +3,7 @@ package org.apache.jena.sparql.engine.join;
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.atlas.iterator.Iter;
 import org.apache.jena.graph.Node;
+import org.apache.jena.sparql.algebra.op.OpKNNSimJoin;
 import org.apache.jena.sparql.algebra.op.OpSimJoin;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.ExecutionContext;
@@ -18,9 +19,9 @@ public class QueryIterSimilarityJoin extends QueryIterSim {
     private QueryIterSimilarityJoin(QueryIterator left, QueryIterator right, OpSimJoin opSimJoin, ExecutionContext execCxt) {
         super(left,right,execCxt);
         this.right = right;
-        this.k = opSimJoin.getK();
-        this.attrLeft = opSimJoin.getAttr1();
-        this.attrRight = opSimJoin.getAttr2();
+        this.k = ((OpKNNSimJoin)opSimJoin).getK();
+        this.attrLeft = opSimJoin.getLeftAttrs();
+        this.attrRight = opSimJoin.getRightAttrs();
         this.distVar = opSimJoin.getDist();
         this.distFunc = opSimJoin.getDistanceFunc();
         this.leftRows = Iter.toList(left);
@@ -28,7 +29,7 @@ public class QueryIterSimilarityJoin extends QueryIterSim {
         s_countLHS = leftRows.size();
         s_countResults = s_countLHS * k;
         for(int i=0; i<s_countLHS; i++){
-            knn.put(i, new PriorityQueue<>(opSimJoin.getK(),Neighbor.comparator));
+            knn.put(i, new PriorityQueue<>(((OpKNNSimJoin)opSimJoin).getK(),Neighbor.comparator));
         }
         nestedLoop();
         consolidate();

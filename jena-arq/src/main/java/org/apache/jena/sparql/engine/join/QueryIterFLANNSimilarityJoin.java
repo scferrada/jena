@@ -2,13 +2,10 @@ package org.apache.jena.sparql.engine.join;
 
 import flann.index.IndexBase;
 import flann.index.IndexKDTree;
-import flann.index.IndexKDTreeSingle;
 import flann.metric.Metric;
-import flann.metric.MetricEuclideanSquared;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.atlas.iterator.Iter;
-import org.apache.jena.sparql.algebra.op.OpSimJoin;
+import org.apache.jena.sparql.algebra.op.OpKNNSimJoin;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.ExecutionContext;
 import org.apache.jena.sparql.engine.QueryIterator;
@@ -23,12 +20,12 @@ public class QueryIterFLANNSimilarityJoin extends QueryIterSim {
     private QueryIterator left_;
     private Iterator<Binding> right_;
 
-    private QueryIterFLANNSimilarityJoin(QueryIterator left, QueryIterator right, OpSimJoin opSimJoin, ExecutionContext execCxt) {
+    private QueryIterFLANNSimilarityJoin(QueryIterator left, QueryIterator right, OpKNNSimJoin opSimJoin, ExecutionContext execCxt) {
         super(left,right,execCxt);
         this.left_ = left;
         this.k = opSimJoin.getK();
-        this.attrLeft = opSimJoin.getAttr1();
-        this.attrRight = opSimJoin.getAttr2();
+        this.attrLeft = opSimJoin.getLeftAttrs();
+        this.attrRight = opSimJoin.getRightAttrs();
         this.distVar = opSimJoin.getDist();
         this.distFunc = opSimJoin.getDistanceFunc();
         this.rightRows = Iter.toList(right);
@@ -89,7 +86,7 @@ public class QueryIterFLANNSimilarityJoin extends QueryIterSim {
         return res.stream().map(l->l.stream().mapToDouble(Double::doubleValue).toArray()).toArray(double[][]::new);
     }
 
-    public static QueryIterator create(QueryIterator left, QueryIterator right, OpSimJoin opSimJoin, ExecutionContext execCxt) {
+    public static QueryIterator create(QueryIterator left, QueryIterator right, OpKNNSimJoin opSimJoin, ExecutionContext execCxt) {
         if ( ! left.hasNext() ) {
             left.close() ;
             right.close() ;

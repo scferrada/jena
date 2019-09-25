@@ -55,11 +55,7 @@
     </dependency>
 
 		<!-- Test Dependencies -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
+
     <dependency>
       <groupId>org.apache.mrunit</groupId>
       <artifactId>mrunit</artifactId>

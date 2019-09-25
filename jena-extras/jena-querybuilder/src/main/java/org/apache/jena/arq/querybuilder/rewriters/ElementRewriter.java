@@ -191,4 +191,8 @@ public class ElementRewriter extends AbstractRewriter<Element> implements
 				q, values)));
 	}
 
+	@Override
+	public void visit(ElementSJ el) {
+	}
+
 }

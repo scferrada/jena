@@ -1,19 +1,83 @@
 package org.apache.jena.query;
 
+import org.apache.jena.sparql.algebra.Op;
+import org.apache.jena.sparql.algebra.op.OpSimJoin;
 import org.apache.jena.sparql.core.Var;
+import org.apache.jena.sparql.lang.ParserSPARQL11;
+import org.apache.jena.sparql.lang.ParserSPARQLSJ11;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class SimJoinQuery extends Query{
+public abstract class SimJoinQuery extends Query{
 
-    private Query Q1;
-    private Query Q2;
-    private List<Var> attr1;
-    private List<Var> attr2;
-    private DistanceFunction distance;
-    private Var dist;
-    private int k;
+    protected Query Q1;
+    protected Query Q2;
+    protected List<Var> leftAttrs;
+    protected List<Var> rightAttrs;
+    protected DistanceFunction distance;
+    protected Var dist;
+
+    private static final Pattern pattern = Pattern.compile("(.+) +similarity +join +on +((?:\\((?:\\?[a-zA-Z]\\w* ?)*\\) *){2}) +with +distance +(\\w+) +as +(\\?[a-zA-Z]\\w*+) +(top|within) +(\\d+\\.?\\d*) +(.+)");
+
+    public static SimJoinQuery parse(String query, ParserSPARQL11.Action action) {
+        Query Q1 = new Query();
+        Query Q2 = new Query();
+        Q1.setSyntax(Syntax.syntaxSPARQL_11);
+        Q2.setSyntax(Syntax.syntaxSPARQL_11);
+
+        Matcher matcher = pattern.matcher(query.toLowerCase());
+        if(!matcher.matches()) throw new QueryParseException("Query does not have a correct Sim. Join syntax", 0,-1);
+
+        String firstSelect = matcher.group(1);
+        String attrs = matcher.group(2);
+        String distance = matcher.group(3).toLowerCase().trim();
+        String distVar = matcher.group(4);
+        String topwithin = matcher.group(5).trim();
+        String searchParam  = matcher.group(6);
+        String secondSelect = matcher.group(7);
+
+        ParserSPARQLSJ11.perform(Q1, firstSelect, action);
+        ParserSPARQLSJ11.perform(Q2, secondSelect, action);
+
+        SimJoinQuery sjQuery;
+
+        if(topwithin.equalsIgnoreCase("top")){
+            sjQuery = new KNNSimJoinQuery();
+            ((KNNSimJoinQuery)sjQuery).setK(Integer.parseInt(searchParam));
+        } else if (topwithin.equalsIgnoreCase("within")){
+            sjQuery = new RangeSimJoinQuery();
+            ((RangeSimJoinQuery) sjQuery).setRadius(Double.parseDouble(searchParam));
+        } else
+            throw new QueryParseException("Malformed Similarity Join Query: choose TOP or WITHIN clause",0,0);
+
+        sjQuery.setQ1(Q1);
+        sjQuery.setQ2(Q2);
+        sjQuery.setDistance(distance);
+        sjQuery.setDist(Var.alloc(Var.canonical(distVar)));
+
+        List<Var> attr1 = new LinkedList<>();
+        List<Var> attr2 = new LinkedList<>();
+        String[] parts = attrs.split("\\) *\\(");
+        String[] str1 = parts[0].replace("(", "").trim().split("\\?");
+        String[] str2 = parts[1].replace(")", "").trim().split("\\?");
+
+        if (str1.length!=str2.length)
+            throw new IllegalArgumentException("Number of dimensions to join must match.");
+
+        for (int i = 1 ; i < str1.length; i++)
+            if(str1[i].trim().length()>0)
+                attr1.add(Var.alloc(Var.canonical(str1[i].trim())));
+        for (int i = 1 ; i < str2.length; i++)
+            if(str2[i].trim().length()>0)
+                attr2.add(Var.alloc(Var.canonical(str2[i].trim())));
+
+        sjQuery.setLeftAttrs(attr1);
+        sjQuery.setRightAttrs(attr2);
+        return sjQuery;
+    }
 
     public Query getQ1() {
         return Q1;
@@ -31,20 +95,20 @@ public class SimJoinQuery extends Query{
         Q2 = q2;
     }
 
-    public List<Var> getAttr1() {
-        return attr1;
+    public List<Var> getLeftAttrs() {
+        return leftAttrs;
     }
 
-    public void setAttr1(List<Var> attr1) {
-        this.attr1 = attr1;
+    public void setLeftAttrs(List<Var> leftAttrs) {
+        this.leftAttrs = leftAttrs;
     }
 
-    public List<Var> getAttr2() {
-        return attr2;
+    public List<Var> getRightAttrs() {
+        return rightAttrs;
     }
 
-    public void setAttr2(List<Var> attr2) {
-        this.attr2 = attr2;
+    public void setRightAttrs(List<Var> rightAttrs) {
+        this.rightAttrs = rightAttrs;
     }
 
     public DistanceFunction getDistance() {
@@ -63,26 +127,18 @@ public class SimJoinQuery extends Query{
         this.dist = dist;
     }
 
-    public int getK() {
-        return k;
-    }
-
-    public void setK(int k) {
-        this.k = k;
-    }
-
     public String toString(){
         StringBuilder sb = new StringBuilder();
         sb.append(Q1.toString())
                 .append("SIMILARITY JOIN ON ")
-                .append(print(attr1))
-                .append(print(attr2))
+                .append(print(leftAttrs))
+                .append(print(rightAttrs))
                 .append("\nWITH DISTANCE ")
                 .append(distance.toString())
                 .append(" AS ")
                 .append(dist)
                 .append("\nTOP ")
-                .append(k).append("\n")
+                //.append(k).append("\n")
                 .append(Q2.toString());
         return sb.toString();
     }
@@ -102,4 +158,6 @@ public class SimJoinQuery extends Query{
         }
         return res;
     }
+
+    public abstract OpSimJoin createOp(Op left, Op right);
 }

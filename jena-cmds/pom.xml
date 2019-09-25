@@ -61,11 +61,7 @@
       <type>pom</type>
     </dependency>
 
-    <!-- Command Logging -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
+
     
     <!-- Require a logging implementation 
          It is <scope>test</scope> from the parent otherwise.

@@ -1,41 +1,36 @@
 package org.apache.jena.sparql.algebra.op;
 
 import org.apache.jena.query.DistanceFunction;
+import org.apache.jena.query.SimJoinQuery;
 import org.apache.jena.sparql.algebra.Op;
 import org.apache.jena.sparql.algebra.OpVisitor;
 import org.apache.jena.sparql.algebra.Transform;
 import org.apache.jena.sparql.core.Var;
+import org.apache.jena.sparql.engine.QueryIterator;
 import org.apache.jena.sparql.sse.Tags;
 import org.apache.jena.sparql.util.NodeIsomorphismMap;
 
-import java.util.LinkedList;
 import java.util.List;
 
-public class OpSimJoin extends Op2 {
+public abstract class OpSimJoin extends Op2 {
 
-    private DistanceFunction distance;
-    private Var dist;
-    private int k;
-    private List<Var> attr1, attr2;
+    protected DistanceFunction distance;
+    protected Var dist;
+    protected List<Var> leftAttrs, rightAttrs;
 
     public OpSimJoin(Op left, Op right) {
         super(left, right);
     }
 
+    public static OpSimJoin create(Op left, Op right, SimJoinQuery query) {
+        return query.createOp(left, right);
+    }
+
+    public abstract QueryIterator createIterator(QueryIterator left, QueryIterator right);
+
     @Override
     public Op apply(Transform transform, Op left, Op right) {
         return transform.transform(this, left, right);
-    }
-
-    @Override
-    public Op2 copy(Op left, Op right) {
-        OpSimJoin sj = new OpSimJoin(left, right);
-        sj.k = this.k;
-        sj.distance = this.distance;
-        sj.dist = this.dist;
-        sj.attr1 = new LinkedList<>(this.attr1);
-        sj.attr2 = new LinkedList<>(this.attr2);
-        return sj;
     }
 
     @Override
@@ -70,28 +65,20 @@ public class OpSimJoin extends Op2 {
         this.dist = dist;
     }
 
-    public int getK() {
-        return k;
+    public List<Var> getLeftAttrs() {
+        return leftAttrs;
     }
 
-    public void setK(int k) {
-        this.k = k;
+    public void setLeftAttrs(List<Var> leftAttrs) {
+        this.leftAttrs = leftAttrs;
     }
 
-    public List<Var> getAttr1() {
-        return attr1;
+    public List<Var> getRightAttrs() {
+        return rightAttrs;
     }
 
-    public void setAttr1(List<Var> attr1) {
-        this.attr1 = attr1;
-    }
-
-    public List<Var> getAttr2() {
-        return attr2;
-    }
-
-    public void setAttr2(List<Var> attr2) {
-        this.attr2 = attr2;
+    public void setRightAttrs(List<Var> rightAttrs) {
+        this.rightAttrs = rightAttrs;
     }
 
     public void setLeft(Op l){
@@ -100,9 +87,5 @@ public class OpSimJoin extends Op2 {
 
     public void setRight(Op r){
         this.right = r;
-    }
-
-    public double getRadius() {
-        return 0;
     }
 }
