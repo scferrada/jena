@@ -32,8 +32,10 @@ public class AlgebraEx
     public static void main(String []args)
     {
         Model model = ExQuerySelect2.createSimModel();
+        //DatasetFactory.create().begin((ReadWrite) null);
         long start = System.nanoTime();
-        String s = "SELECT DISTINCT ?id ?a1 ?b1 { ?id <http://ex.com/a> ?a1; <http://ex.com/b> ?b1 } similarity join on (?a1 ?b1) (?a2 ?b2) with distance manhattan as ?d within 0 SELECT DISTINCT ?id2 ?a2 ?b2 { ?id2 <http://ex.com/a> ?a2; <http://ex.com/b> ?b2 }";
+        //String s = "SELECT DISTINCT ?id ?a1 ?b1 { ?id <http://ex.com/a> ?a1; <http://ex.com/b> ?b1 } similarity join on (?a1 ?b1) (?a2 ?b2) with distance manhattan as ?d within 0 SELECT DISTINCT ?id2 ?a2 ?b2 { ?id2 <http://ex.com/a> ?a2; <http://ex.com/b> ?b2 }";
+        String s = "PREFIX ex:<http://ex.com/> SELECT DISTINCT ?id ?a1 ?b1 { ?id ex:a ?a1; <http://ex.com/b> ?b1 } similarity join on (?a1 ?b1) (?a2 ?b2) with distance manhattan as ?d within 0 SELECT DISTINCT ?id2 ?a2 ?b2 { ?id2 ex:a ?a2; <http://ex.com/b> ?b2 }";
         // Parse
         Query query = QueryFactory.create(s, Syntax.syntaxSPARQL_SJ_11) ;
 

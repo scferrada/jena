@@ -54,13 +54,16 @@ public class RDFReaderFImpl extends Object implements RDFReaderF {
         if (lang==null || lang.equals(""))
             lang = DEFAULTLANG ;
         // if RIOT ->
-        if ( rewiredAlternative != null )
-            return rewiredAlternative.getReader(lang) ;
+        if ( rewiredAlternative != null ) {
+            System.out.println(rewiredAlternative.getReader(lang).getClass());
+            return rewiredAlternative.getReader(lang);
+        }
         Class<? extends RDFReader> c = custom.get(lang);
         if ( c == null )
             throw new NoReaderForLangException("Reader not found: " + lang);
 
         try {
+            System.out.println(c);
             return c.newInstance();
         }
         catch (InstantiationException | IllegalAccessException e) {

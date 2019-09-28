@@ -13,14 +13,14 @@ import java.util.regex.Pattern;
 
 public abstract class SimJoinQuery extends Query{
 
-    protected Query Q1;
-    protected Query Q2;
-    protected List<Var> leftAttrs;
-    protected List<Var> rightAttrs;
+    private Query Q1;
+    private Query Q2;
+    List<Var> leftAttrs;
+    List<Var> rightAttrs;
     protected DistanceFunction distance;
     protected Var dist;
 
-    private static final Pattern pattern = Pattern.compile("(.+) +similarity +join +on +((?:\\((?:\\?[a-zA-Z]\\w* ?)*\\) *){2}) +with +distance +(\\w+) +as +(\\?[a-zA-Z]\\w*+) +(top|within) +(\\d+\\.?\\d*) +(.+)");
+    private static final Pattern pattern = Pattern.compile("(.+)\\s+similarity +join +on\\s+((?:\\((?:\\?[a-zA-Z]\\w* ?)*\\)\\s*){2})\\s+with +distance +(\\w+)\\s+as +(\\?[a-zA-Z]\\w*+)\\s+(top|within) +(\\d+\\.?\\d*)\\s+(.+)");
 
     public static SimJoinQuery parse(String query, ParserSPARQL11.Action action) {
         Query Q1 = new Query();
@@ -40,6 +40,7 @@ public abstract class SimJoinQuery extends Query{
         String secondSelect = matcher.group(7);
 
         ParserSPARQLSJ11.perform(Q1, firstSelect, action);
+        Q2.setPrefixMapping(Q1.getPrefixMapping());
         ParserSPARQLSJ11.perform(Q2, secondSelect, action);
 
         SimJoinQuery sjQuery;
@@ -60,7 +61,7 @@ public abstract class SimJoinQuery extends Query{
 
         List<Var> attr1 = new LinkedList<>();
         List<Var> attr2 = new LinkedList<>();
-        String[] parts = attrs.split("\\) *\\(");
+        String[] parts = attrs.split("\\)\\s*\\(");
         String[] str1 = parts[0].replace("(", "").trim().split("\\?");
         String[] str2 = parts[1].replace(")", "").trim().split("\\?");
 
