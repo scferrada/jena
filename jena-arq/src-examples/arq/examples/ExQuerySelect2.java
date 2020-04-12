@@ -29,6 +29,14 @@ import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource ;
 import org.apache.jena.vocabulary.DC ;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Stream;
+
 /** Example 2 : Execute a simple SELECT query on a model
  *  to find the DC titles contained in a model. 
  *  Show how to print results twice. */
@@ -95,6 +103,34 @@ public class ExQuerySelect2
         for (int i = 0; i < N; i++) {
             Resource r = m.createResource("http://ex.com/"+i);
             r.addProperty(a, ""+i).addProperty(b, ""+i);
+        }
+        return m;
+    }
+
+    public static Model createSimModel2(String path){
+        Model m = ModelFactory.createDefaultModel();
+        List<Property> properties = new LinkedList<>();
+        Property a = m.createProperty("http://ex.com/a"); properties.add(a);
+        Property b = m.createProperty("http://ex.com/b"); properties.add(b);
+        Property c = m.createProperty("http://ex.com/c"); properties.add(c);
+        Property d = m.createProperty("http://ex.com/d"); properties.add(d);
+        Property e = m.createProperty("http://ex.com/e"); properties.add(e);
+        Property f = m.createProperty("http://ex.com/f"); properties.add(f);
+        Property g = m.createProperty("http://ex.com/g"); properties.add(g);
+        Property h = m.createProperty("http://ex.com/h"); properties.add(h);
+        Property i = m.createProperty("http://ex.com/i"); properties.add(i);
+        Property j = m.createProperty("http://ex.com/j"); properties.add(j);
+
+        try (Stream<String> lines = Files.lines(Paths.get(path))) {
+            lines.forEachOrdered(line->{
+                List<String> parts = Arrays.asList(line.split(" "));
+                Resource r = m.createResource("http://ex.com/"+parts.get(0));
+                for (int k = 0; k < properties.size(); k++) {
+                    r.addProperty(properties.get(k), parts.get(k));
+                }
+            });
+        } catch (IOException ioe) {
+            return null;
         }
         return m;
     }

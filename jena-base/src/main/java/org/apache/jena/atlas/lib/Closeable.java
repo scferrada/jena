@@ -23,5 +23,5 @@ package org.apache.jena.atlas.lib;
  */
 public interface Closeable
 {
-    public void close() ;
+    void close() ;
 }

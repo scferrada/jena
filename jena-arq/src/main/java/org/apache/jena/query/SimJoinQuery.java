@@ -1,7 +1,6 @@
 package org.apache.jena.query;
 
 import org.apache.jena.sparql.algebra.Op;
-import org.apache.jena.sparql.algebra.op.OpSimJoin;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.lang.ParserSPARQL11;
 import org.apache.jena.sparql.lang.ParserSPARQLSJ11;
@@ -20,7 +19,7 @@ public abstract class SimJoinQuery extends Query{
     protected DistanceFunction distance;
     protected Var dist;
 
-    private static final Pattern pattern = Pattern.compile("(.+)\\s+similarity +join +on\\s+((?:\\((?:\\?[a-zA-Z]\\w* ?)*\\)\\s*){2})\\s+with +distance +(\\w+)\\s+as +(\\?[a-zA-Z]\\w*+)\\s+(top|within) +(\\d+\\.?\\d*)\\s+(.+)");
+    private static final Pattern pattern = Pattern.compile("(.+)\\s+similarity\\s+join\\s+on\\s+((?:\\((?:\\?[a-zA-Z]\\w*\\s*)*\\)\\s*){2})\\s+with\\s+distance\\s+(\\w+)\\s+as\\s+(\\?[a-zA-Z]\\w*+)\\s+(top|within)\\s+(\\d+\\.?\\d*)\\s+(.+)", Pattern.DOTALL);
 
     public static SimJoinQuery parse(String query, ParserSPARQL11.Action action) {
         Query Q1 = new Query();
@@ -77,6 +76,7 @@ public abstract class SimJoinQuery extends Query{
 
         sjQuery.setLeftAttrs(attr1);
         sjQuery.setRightAttrs(attr2);
+        sjQuery.setQuerySimJoinType();
         return sjQuery;
     }
 
@@ -160,5 +160,5 @@ public abstract class SimJoinQuery extends Query{
         return res;
     }
 
-    public abstract OpSimJoin createOp(Op left, Op right);
+    public abstract Op createOp(Op left, Op right);
 }

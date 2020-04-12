@@ -82,7 +82,7 @@ public class QueryIteratorCheck extends QueryIteratorWrapper
         while(iterOpen.hasNext())
         {
             QueryIterator qIterOpen = iterOpen.next() ;
-            warn(qIterOpen, "Open iterator: ") ;
+            //warn(qIterOpen, "Open iterator: ") ;
             iterOpen.remove() ;
         }
     }

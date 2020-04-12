@@ -42,13 +42,7 @@ public abstract class CmdArgModule extends CmdMain
     public void process()
     {
         super.process() ;
-        forEach(new Action(){
-            @Override
-            public void action(CmdArgModule controller, ArgModuleGeneral module)
-            { 
-                module.processArgs(controller) ;
-            }
-        } ) ;
+        forEach((controller, module) -> module.processArgs(controller)) ;
         processModulesAndArgs() ;
     }
     

@@ -26,6 +26,8 @@ import org.apache.jena.sparql.algebra.Op ;
 import org.apache.jena.sparql.algebra.OpVisitor ;
 import org.apache.jena.sparql.algebra.op.* ;
 import org.apache.jena.sparql.engine.QueryIterator ;
+import org.apache.jena.sparql.engine.ref.Evaluator;
+import org.apache.jena.sparql.engine.ref.EvaluatorSimple;
 
 /**  Class to provide type-safe execution dispatch using the visitor support of Op */ 
 
@@ -33,16 +35,18 @@ class ExecutionDispatch implements OpVisitor
 {
     private Deque<QueryIterator> stack = new ArrayDeque<>() ;
     private OpExecutor opExecutor ;
+    private Evaluator evaluator;
     
     ExecutionDispatch(OpExecutor exec)
     {
         opExecutor = exec ;
+        evaluator=new EvaluatorSimple(exec.execCxt);
     }
     
     QueryIterator exec(Op op, QueryIterator input)
     {
         push(input) ;
-        int x = stack.size() ; 
+        int x = stack.size() ;
         op.visit(this) ;
         int y = stack.size() ;
         if ( x != y )
@@ -55,7 +59,7 @@ class ExecutionDispatch implements OpVisitor
     public void visit(OpBGP opBGP)
     {
         QueryIterator input = pop() ;
-        QueryIterator qIter = opExecutor.execute(opBGP, input) ;
+        QueryIterator qIter = evaluator.basicPattern(opBGP.getPattern()).iterator(evaluator.getExecContext()) ;
         push(qIter) ;
     }
 

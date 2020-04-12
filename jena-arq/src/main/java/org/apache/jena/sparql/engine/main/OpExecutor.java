@@ -24,6 +24,7 @@ import java.util.List ;
 import java.util.Set ;
 
 import org.apache.jena.atlas.iterator.Iter ;
+import org.apache.jena.atlas.logging.Log;
 import org.apache.jena.graph.Node ;
 import org.apache.jena.query.ARQ ;
 import org.apache.jena.query.QueryExecException ;
@@ -124,8 +125,11 @@ public class OpExecutor
     // ---- All the cases
 
     protected QueryIterator execute(OpBGP opBGP, QueryIterator input) {
+
         BasicPattern pattern = opBGP.getPattern() ;
+        Log.warn(this, pattern.toString());
         QueryIterator qIter = stageGenerator.execute(pattern, input, execCxt) ;
+        //Log.error(this, "bgp res: "+qIter.hasNext());
         if (hideBNodeVars)
             qIter = new QueryIterDistinguishedVars(qIter, execCxt) ;
         return qIter ;
@@ -160,6 +164,7 @@ public class OpExecutor
     }
 
     protected QueryIterator execute(OpQuadPattern quadPattern, QueryIterator input) {
+        Log.warn(quadPattern, quadPattern.toString());
         // Convert to BGP forms to execute in this graph-centric engine.
         if (quadPattern.isDefaultGraph() && execCxt.getActiveGraph() == execCxt.getDataset().getDefaultGraph()) {
             // Note we tested that the containing graph was the dataset's
@@ -222,7 +227,7 @@ public class OpExecutor
 
     public QueryIterator execute(OpSimJoin opSimJoin, QueryIterator input) {
         QueryIterator left = exec(opSimJoin.getLeft(), input);
-        QueryIterator right = exec(opSimJoin.getRight(), root());
+        QueryIterator right = exec(opSimJoin.getRight(), left);
         QueryIterator qIter = Join.simjoin(left, right, opSimJoin, execCxt);
         return qIter;
     }
@@ -276,7 +281,9 @@ public class OpExecutor
 
     protected QueryIterator execute(OpUnion opUnion, QueryIterator input) {
         List<Op> x = flattenUnion(opUnion) ;
+        System.out.println("doin union");
         QueryIterator cIter = new QueryIterUnion(input, x, execCxt) ;
+        System.out.println(cIter.hasNext());
         return cIter ;
     }
 
@@ -391,7 +398,6 @@ public class OpExecutor
         // on the active graph.
 
         // More intelligent QueryIterProject needed.
-
         if (input instanceof QueryIterRoot) {
             QueryIterator qIter = exec(opProject.getSubOp(), input) ;
             qIter = new QueryIterProject(qIter, opProject.getVars(), execCxt) ;
@@ -399,6 +405,7 @@ public class OpExecutor
         }
         // Nested projected : need to ensure the input is seen.
         QueryIterator qIter = new QueryIterProjectMerge(opProject, input, this, execCxt) ;
+        //Log.warn(this, "queriter (?) "+qIter.hasNext());
         return qIter ;
     }
 

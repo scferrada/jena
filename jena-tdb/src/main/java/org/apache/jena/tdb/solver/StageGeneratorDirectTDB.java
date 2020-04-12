@@ -21,6 +21,7 @@ package org.apache.jena.tdb.solver;
 import java.util.function.Predicate;
 
 import org.apache.jena.atlas.lib.tuple.Tuple ;
+import org.apache.jena.atlas.logging.Log;
 import org.apache.jena.graph.Graph ;
 import org.apache.jena.sparql.core.BasicPattern ;
 import org.apache.jena.sparql.engine.ExecutionContext ;
@@ -47,7 +48,7 @@ public class StageGeneratorDirectTDB implements StageGenerator
     {
         // --- In case this isn't for TDB
         Graph g = execCxt.getActiveGraph() ;
-        
+        //Log.warn(this, "graph: "+g.size());
         if ( ! ( g instanceof GraphTDB ) )
             // Not us - bounce up the StageGenerator chain
             return above.execute(pattern, input, execCxt) ;

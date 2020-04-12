@@ -28,10 +28,7 @@ import org.apache.jena.sparql.ARQInternalErrorException ;
 import org.apache.jena.sparql.algebra.Op ;
 import org.apache.jena.sparql.algebra.op.* ;
 import org.apache.jena.sparql.algebra.optimize.TransformFilterPlacement ;
-import org.apache.jena.sparql.core.BasicPattern ;
-import org.apache.jena.sparql.core.Quad ;
-import org.apache.jena.sparql.core.Substitute ;
-import org.apache.jena.sparql.core.Var ;
+import org.apache.jena.sparql.core.*;
 import org.apache.jena.sparql.engine.ExecutionContext ;
 import org.apache.jena.sparql.engine.QueryIterator ;
 import org.apache.jena.sparql.engine.iterator.QueryIterPeek ;
@@ -126,11 +123,11 @@ public class OpExecutorTDB1 extends OpExecutor
     {
         if ( ! isForTDB )
             return super.execute(opBGP, input) ;
-        
         GraphTDB graph = (GraphTDB)execCxt.getActiveGraph() ;
         return executeBGP(graph, opBGP, input, null, execCxt) ;
        
     }
+
 
     @Override
     protected QueryIterator execute(OpQuadPattern quadPattern, QueryIterator input)
@@ -141,7 +138,7 @@ public class OpExecutorTDB1 extends OpExecutor
     //        DatasetGraph dg = execCxt.getDataset() ;
     //        if ( ! ( dg instanceof DatasetGraphTDB ) )
     //            throw new InternalErrorException("Not a TDB backed dataset in quad pattern execution") ;
-        
+
         DatasetGraphTDB ds = (DatasetGraphTDB)execCxt.getDataset() ;
         BasicPattern bgp = quadPattern.getBasicPattern() ;
         Node gn = quadPattern.getGraphNode() ;
@@ -192,14 +189,11 @@ public class OpExecutorTDB1 extends OpExecutor
                 pattern = reorder(pattern, peek, transform) ;
             }
         }
-        // -- Filter placement
-            
-        Op op = null ;
+        Op op;
         if ( exprs != null )
             op = TransformFilterPlacement.transform(exprs, pattern) ;
         else
             op = new OpBGP(pattern) ;
-        
         return plainExecute(op, input, execCxt) ;
     }
 
@@ -237,7 +231,14 @@ public class OpExecutorTDB1 extends OpExecutor
         else
             op = new OpQuadPattern(gn, bgp) ;
 
-        return plainExecute(op, input, execCxt) ;
+        return plainExecute2(bgp, input, execCxt) ;
+    }
+
+    private static QueryIterator plainExecute2(BasicPattern pattern, QueryIterator input, ExecutionContext execCxt) {
+        Graph g = execCxt.getActiveGraph();
+        GraphTDB gtdb = (GraphTDB)g ;
+        Node gn = decideGraphNode(gtdb.getGraphName(), execCxt) ;
+        return SolverLib.execute(gtdb.getDatasetGraphTDB(), gn, pattern, input, QC2.getFilter(execCxt.getContext()), execCxt) ;
     }
 
     /** Execute without modification of the op - does <b>not</b> apply special graph name translations */ 
@@ -247,7 +248,6 @@ public class OpExecutorTDB1 extends OpExecutor
         // Switch to a non-reordering executor
         // The Op may be a sequence due to TransformFilterPlacement
         // so we need to do a full execution step, not go straight to the SolverLib.
-        
         ExecutionContext ec2 = new ExecutionContext(execCxt) ;
         ec2.setExecutor(plainFactory) ;
 

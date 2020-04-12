@@ -50,23 +50,29 @@ import org.apache.jena.sparql.util.Context;
 
 import java.util.*;
 
-/** Utilities to produce SPARQL algebra */
-public class Algebra
-{
+/**
+ * Utilities to produce SPARQL algebra
+ */
+public class Algebra {
     // -------- Optimize
-    
-    /** Apply static transformations to a query to optimize it */
-    public static Op optimize(Op op) { return optimize(op, null) ; }
-    
-    /** Apply static transformations to a query to optimize it */
-    public static Op optimize(Op op, Context context)
-    {
-        if ( context == null )
-            context = ARQ.getContext() ;
+
+    /**
+     * Apply static transformations to a query to optimize it
+     */
+    public static Op optimize(Op op) {
+        return optimize(op, null);
+    }
+
+    /**
+     * Apply static transformations to a query to optimize it
+     */
+    public static Op optimize(Op op, Context context) {
+        if (context == null)
+            context = ARQ.getContext();
         // Call-through to somewhere to manage all the optimizations
-        if ( op == null )
-            return null ;
-        if(op instanceof OpSimJoin){
+        if (op == null)
+            return null;
+        if (op instanceof OpSimJoin) {
             OpSimJoin opsj = (OpSimJoin) op;
             Op optLeft = Optimize.optimize(opsj.getLeft(), context);
             Op optRight = Optimize.optimize(opsj.getRight(), context);
@@ -74,170 +80,157 @@ public class Algebra
             opsj.setRight(optRight);
             return opsj;
         }
-        return Optimize.optimize(op, context) ;
-    }   
-    
+        return Optimize.optimize(op, context);
+    }
+
     // -------- Compile
-    
-    /** Compile a query - pattern and modifiers.  */
-    public static Op compile(Query query)
-    {
-        if ( query == null )
-            return null ;
-        return new AlgebraGenerator().compile(query) ;
+
+    /**
+     * Compile a query - pattern and modifiers.
+     */
+    public static Op compile(Query query) {
+        if (query == null)
+            return null;
+        return new AlgebraGenerator().compile(query);
     }
 
-    /** Compile a pattern.*/
-    public static Op compile(Element elt)
-    {
-        if ( elt == null )
-            return null ;
-        return new AlgebraGenerator().compile(elt) ;
+    /**
+     * Compile a pattern.
+     */
+    public static Op compile(Element elt) {
+        if (elt == null)
+            return null;
+        return new AlgebraGenerator().compile(elt);
     }
 
-    /** Turn an algebra expression into quadpattern form */
-    public static Op toQuadForm(Op op)
-    {
-        return AlgebraQuad.quadize(op) ;
+    /**
+     * Turn an algebra expression into quadpattern form
+     */
+    public static Op toQuadForm(Op op) {
+        return AlgebraQuad.quadize(op);
     }
-    
-    /** Turn an algebra expression into quadblock form */
-    public static Op toQuadBlockForm(Op op)
-    {
-        return AlgebraQuad.quadizeBlock(op) ;
+
+    /**
+     * Turn an algebra expression into quadblock form
+     */
+    public static Op toQuadBlockForm(Op op) {
+        return AlgebraQuad.quadizeBlock(op);
     }
-    
-    /** Transform an algebra expression so that default graph is union of the named graphs. */
-    public static Op unionDefaultGraph(Op op)
-    {
-        return TransformUnionQuery.transform(op) ;
+
+    /**
+     * Transform an algebra expression so that default graph is union of the named graphs.
+     */
+    public static Op unionDefaultGraph(Op op) {
+        return TransformUnionQuery.transform(op);
     }
-    
+
     // -------- SSE uses these operations ...
-    
-    static public Op read(String filename)
-    {
-        Item item = SSE.readFile(filename) ;
-        return parse(item) ;
+
+    static public Op read(String filename) {
+        Item item = SSE.readFile(filename);
+        return parse(item);
     }
 
-    static public Op parse(String string)
-    {
-        Item item = SSE.parse(string) ;
-        return parse(item) ;
+    static public Op parse(String string) {
+        Item item = SSE.parse(string);
+        return parse(item);
     }
-    
 
-    static public Op parse(String string, PrefixMapping pmap)
-    {
-        Item item = SSE.parse(string, pmap) ;
-        return parse(item) ;
+
+    static public Op parse(String string, PrefixMapping pmap) {
+        Item item = SSE.parse(string, pmap);
+        return parse(item);
     }
-    
-    static public Op parse(Item item)
-    {
-        Op op = BuilderOp.build(item) ;
-        return op ;
+
+    static public Op parse(Item item) {
+        Op op = BuilderOp.build(item);
+        return op;
     }
-    
+
     // -------- Execute
 
-    static public QueryIterator exec(Op op, Dataset ds)
-    {
-        return exec(op, ds.asDatasetGraph()) ;
+    static public QueryIterator exec(Op op, Dataset ds) {
+        return exec(op, ds.asDatasetGraph());
     }
 
-    static public QueryIterator exec(Op op, Model model)
-    {
+    static public QueryIterator exec(Op op, Model model) {
         return exec(op, model.getGraph());
     }
 
-    static public QueryIterator exec(Op op, Graph graph)
-    {
-        return exec(op, DatasetGraphFactory.wrap(graph)) ;
+    static public QueryIterator exec(Op op, Graph graph) {
+        return exec(op, DatasetGraphFactory.wrap(graph));
     }
 
-    static public QueryIterator exec(Op op, DatasetGraph ds)
-    {
-        QueryEngineFactory f = QueryEngineRegistry.findFactory(op, ds, null) ;
-        Plan plan = f.create(op, ds, BindingRoot.create(), null) ;
-        return plan.iterator() ;
+    static public QueryIterator exec(Op op, DatasetGraph ds) {
+        QueryEngineFactory f = QueryEngineRegistry.findFactory(op, ds, null);
+        Plan plan = f.create(op, ds, BindingRoot.create(), null);
+        return plan.iterator();
     }
 
     //  Reference engine
 
-    static public QueryIterator execRef(Op op, Dataset ds)
-    {
-        return execRef(op, ds.asDatasetGraph()) ;
+    static public QueryIterator execRef(Op op, Dataset ds) {
+        return execRef(op, ds.asDatasetGraph());
     }
 
-    static public QueryIterator execRef(Op op, Model model)
-    {
-        return execRef(op, model.getGraph()) ;
+    static public QueryIterator execRef(Op op, Model model) {
+        return execRef(op, model.getGraph());
     }
 
-    static public QueryIterator execRef(Op op, Graph graph)
-    {
-        return execRef(op, DatasetGraphFactory.wrap(graph)) ;
+    static public QueryIterator execRef(Op op, Graph graph) {
+        return execRef(op, DatasetGraphFactory.wrap(graph));
     }
 
-    static public QueryIterator execRef(Op op, DatasetGraph dsg)
-    {
-        QueryEngineRef qe = new QueryEngineRef(op, dsg, ARQ.getContext().copy()) ;
-        return qe.getPlan().iterator() ;
+    static public QueryIterator execRef(Op op, DatasetGraph dsg) {
+        QueryEngineRef qe = new QueryEngineRef(op, dsg, ARQ.getContext().copy());
+        return qe.getPlan().iterator();
     }
-    
+
     // This is the SPARQL merge rule. 
-    public static Binding merge(Binding bindingLeft, Binding bindingRight)
-    {
+    public static Binding merge(Binding bindingLeft, Binding bindingRight) {
         // Test to see if compatible: Iterate over variables in left
-        boolean matches = compatible(bindingLeft, bindingRight) ;
-        
-        if ( ! matches ) 
-            return null ;
-        
+        boolean matches = compatible(bindingLeft, bindingRight);
+
+        if (!matches)
+            return null;
+
         // If compatible, merge. Iterate over variables in right but not in left.
-        BindingMap b = BindingFactory.create(bindingLeft) ;
-        for ( Iterator<Var> vIter = bindingRight.vars() ; vIter.hasNext() ; )
-        {
+        BindingMap b = BindingFactory.create(bindingLeft);
+        for (Iterator<Var> vIter = bindingRight.vars(); vIter.hasNext(); ) {
             Var v = vIter.next();
-            Node n = bindingRight.get(v) ;
-            if ( ! bindingLeft.contains(v) )
-                b.add(v, n) ;
+            Node n = bindingRight.get(v);
+            if (!bindingLeft.contains(v))
+                b.add(v, n);
         }
-        return b ;
+        return b;
     }
-    
-    public static boolean compatible(Binding bindingLeft, Binding bindingRight)
-    {
+
+    public static boolean compatible(Binding bindingLeft, Binding bindingRight) {
         // Test to see if compatible: Iterate over variables in left
-        for ( Iterator<Var> vIter = bindingLeft.vars() ; vIter.hasNext() ; )
-        {
+        for (Iterator<Var> vIter = bindingLeft.vars(); vIter.hasNext(); ) {
             Var v = vIter.next();
-            Node nLeft  = bindingLeft.get(v) ; 
-            Node nRight = bindingRight.get(v) ;
-            
-            if ( nRight != null && ! nRight.equals(nLeft) )
-                return false ;
+            Node nLeft = bindingLeft.get(v);
+            Node nRight = bindingRight.get(v);
+
+            if (nRight != null && !nRight.equals(nLeft))
+                return false;
         }
-        return true ;
+        return true;
     }
-    
-    public static boolean disjoint(Binding binding1, Binding binding2)
-    {
-        Iterator<Var> iterVar1 = binding1.vars() ;
-        for ( ; iterVar1.hasNext() ; )
-        {
-            Var v = iterVar1.next() ; 
-            if ( binding2.contains(v) )
-                return false ;
+
+    public static boolean disjoint(Binding binding1, Binding binding2) {
+        Iterator<Var> iterVar1 = binding1.vars();
+        for (; iterVar1.hasNext(); ) {
+            Var v = iterVar1.next();
+            if (binding2.contains(v))
+                return false;
         }
-        return true ;
+        return true;
     }
 
     public static List<Binding> join(Binding source, Queue<QueryIterSim.Neighbor> neighbors, Var distVar) {
         List<Binding> res = new LinkedList<>();
-        for(QueryIterSim.Neighbor n : neighbors){
+        for (QueryIterSim.Neighbor n : neighbors) {
             BindingMap b = BindingFactory.create(source);
             b.addAll((Binding) n.getKey());
             b.add(distVar, NodeFactory.createLiteralByValue(n.getDistance(), XSDDatatype.XSDdouble));
@@ -248,11 +241,11 @@ public class Algebra
 
     public static Binding joinR(Binding rowLeft, Binding rowRight, double distance, Var distVar) {
         BindingMap b = BindingFactory.create(rowLeft);
-        for ( Iterator<Var> vIter = rowRight.vars() ; vIter.hasNext() ; ) {
+        for (Iterator<Var> vIter = rowRight.vars(); vIter.hasNext(); ) {
             Var v = vIter.next();
-            Node n = rowRight.get(v) ;
-            if ( ! rowLeft.contains(v) )
-                b.add(v, n) ;
+            Node n = rowRight.get(v);
+            if (!rowLeft.contains(v))
+                b.add(v, n);
         }
         b.add(distVar, NodeFactory.createLiteralByValue(distance, XSDDatatype.XSDdouble));
         return b;

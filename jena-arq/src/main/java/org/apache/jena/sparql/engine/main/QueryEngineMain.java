@@ -18,6 +18,7 @@
 
 package org.apache.jena.sparql.engine.main;
 
+import org.apache.jena.atlas.logging.Log;
 import org.apache.jena.query.ARQ ;
 import org.apache.jena.query.Query ;
 import org.apache.jena.sparql.algebra.Algebra ;
@@ -49,9 +50,9 @@ public class QueryEngineMain extends QueryEngineBase
     public QueryIterator eval(Op op, DatasetGraph dsg, Binding input, Context context)
     {
         ExecutionContext execCxt = new ExecutionContext(context, dsg.getDefaultGraph(), dsg, QC.getFactory(context)) ;
-        QueryIterator qIter1 = 
-            ( input.isEmpty() ) ? QueryIterRoot.create(execCxt) 
-                                : QueryIterRoot.create(input, execCxt);
+        QueryIterator qIter1;
+        if (input.isEmpty()) qIter1 = QueryIterRoot.create(execCxt);
+        else qIter1 = QueryIterRoot.create(input, execCxt);
         QueryIterator qIter = QC.execute(op, qIter1, execCxt) ;
         // Wrap with something to check for closed iterators.
         qIter = QueryIteratorCheck.check(qIter, execCxt) ;

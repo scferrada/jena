@@ -2,7 +2,11 @@ package org.apache.jena.query;
 
 import org.apache.jena.sparql.algebra.Op;
 import org.apache.jena.sparql.algebra.op.OpKNNSimJoin;
-import org.apache.jena.sparql.algebra.op.OpSimJoin;
+import org.apache.jena.sparql.algebra.op.OpProject;
+import org.apache.jena.sparql.core.Var;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class KNNSimJoinQuery extends SimJoinQuery{
     private int k;
@@ -16,7 +20,7 @@ public class KNNSimJoinQuery extends SimJoinQuery{
     }
 
     @Override
-    public OpSimJoin createOp(Op left, Op right) {
+    public Op createOp(Op left, Op right) {
         OpKNNSimJoin op = new OpKNNSimJoin(left, right);
         op.setK(k);
         op.setLeftAttrs(leftAttrs);

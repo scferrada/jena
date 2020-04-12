@@ -6,6 +6,7 @@ import org.apache.jena.sparql.algebra.Op;
 import org.apache.jena.sparql.algebra.OpVisitor;
 import org.apache.jena.sparql.algebra.Transform;
 import org.apache.jena.sparql.core.Var;
+import org.apache.jena.sparql.engine.ExecutionContext;
 import org.apache.jena.sparql.engine.QueryIterator;
 import org.apache.jena.sparql.sse.Tags;
 import org.apache.jena.sparql.util.NodeIsomorphismMap;
@@ -22,11 +23,11 @@ public abstract class OpSimJoin extends Op2 {
         super(left, right);
     }
 
-    public static OpSimJoin create(Op left, Op right, SimJoinQuery query) {
+    public static Op create(Op left, Op right, SimJoinQuery query) {
         return query.createOp(left, right);
     }
 
-    public abstract QueryIterator createIterator(QueryIterator left, QueryIterator right);
+    public abstract QueryIterator createIterator(QueryIterator left, QueryIterator right, ExecutionContext execCxt);
 
     @Override
     public Op apply(Transform transform, Op left, Op right) {
@@ -88,4 +89,6 @@ public abstract class OpSimJoin extends Op2 {
     public void setRight(Op r){
         this.right = r;
     }
+
+
 }

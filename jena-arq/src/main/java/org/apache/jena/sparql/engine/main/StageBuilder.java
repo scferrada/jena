@@ -70,12 +70,7 @@ public class StageBuilder
     private static StageGenerator defaultStageGenerator = new StageGeneratorGeneric() ; 
     
     /** The plain StageGenerator, no reordering */
-    public static StageGenerator executeInline = new StageGenerator() {
-        @Override
-        public QueryIterator execute(BasicPattern pattern, QueryIterator input, ExecutionContext execCxt)
-        {
-            return QueryIterBlockTriples.create(input, pattern, execCxt) ;
-        }} ;
+    public static StageGenerator executeInline = (pattern, input, execCxt) -> QueryIterBlockTriples.create(input, pattern, execCxt);
         
     // -------- Manage StageGenerator registration
     

@@ -91,7 +91,7 @@ public class Var extends Node_Variable
     // Precalulated the hash code because hashCode() is used so heavily with Var's
     private final int hashCodeValue ;  
     
-    private Var(String varName)      { super(varName) ; hashCodeValue = super.hashCode() ; }
+    public Var(String varName)      { super(varName) ; hashCodeValue = super.hashCode() ; }
     
     private Var(Node_Variable v)     { this(v.getName()) ; }
     

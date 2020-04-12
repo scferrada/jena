@@ -21,6 +21,7 @@ package org.apache.jena.tdb.solver;
 import java.util.Iterator ;
 import java.util.List ;
 
+import org.apache.jena.atlas.logging.Log;
 import org.apache.jena.sparql.engine.ExecutionContext ;
 import org.apache.jena.sparql.engine.QueryIterator ;
 import org.apache.jena.sparql.engine.binding.Binding ;
@@ -37,14 +38,15 @@ public class QueryIterTDB extends QueryIterPlainWrapper
         super(iterBinding, execCxt) ;
         this.originalInput = originalInput ;
         this.killList = killList ;
+        //Log.warn(this, originalInput.toString() + originalInput.hasNext());
     }
     
     @Override
     protected void closeIterator()
-    { 
-        if ( originalInput != null )
+    {
+        /*if ( originalInput != null )
             originalInput.close();
-        super.closeIterator() ;
+        super.closeIterator() ;*/
     }
 
     @Override

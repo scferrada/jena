@@ -63,7 +63,8 @@ public class Query extends Prologue implements Cloneable, Printable
     public static final int QueryTypeDescribe   = 333 ;
     public static final int QueryTypeAsk        = 444 ;
     public static final int QueryTypeJson       = 555 ;
-    int queryType = QueryTypeUnknown ; 
+    public static final int QueryTypeSimJoin       = 666 ;
+    int queryType = QueryTypeUnknown ;
     
     // If no model is provided explicitly, the query engine will load
     // a model from the URL.  Never a list of zero items.
@@ -137,10 +138,12 @@ public class Query extends Prologue implements Cloneable, Printable
     public void setQueryDescribeType()          { queryType = QueryTypeDescribe ; }
     public void setQueryAskType()               { queryType = QueryTypeAsk ; }
     public void setQueryJsonType()              { queryType = QueryTypeJson ; }
-    
+    public void setQuerySimJoinType()              { queryType = QueryTypeSimJoin ; }
+
     public int getQueryType()                   { return queryType ; }
     
     public boolean isSelectType()               { return queryType == QueryTypeSelect ; }
+    public boolean isSimJoinType()               { return queryType == QueryTypeSimJoin ; }
 
     public boolean isConstructType()            { return queryType == QueryTypeConstruct ; }
 
@@ -650,10 +653,15 @@ public class Query extends Prologue implements Cloneable, Printable
         if ( resultVarsSet )
             return ;
         resultVarsSet = true ;
+
+        if (isSimJoinType()){
+            getSJResultVars();
+            return;
+        }
         
         if ( getQueryPattern() == null )
         {
-            if ( ! this.isDescribeType() )
+            if ( ! this.isDescribeType())
                 Log.warn(this, "setResultVars(): no query pattern") ;
             return ;
         }
@@ -682,7 +690,15 @@ public class Query extends Prologue implements Cloneable, Printable
 //        if ( isAskType() )
 //        {}
     }
-    
+
+    private void getSJResultVars() {
+        addResultVar(((SimJoinQuery)this).dist);
+        for (Var v : ((SimJoinQuery)this).getQ1().projectVars.getVars())
+            addResultVar(v);
+        for (Var v : ((SimJoinQuery)this).getQ2().projectVars.getVars())
+            addResultVar(v);
+    }
+
     private void findAndAddNamedVars()
     {
         Iterator<Var> varIter = null ;
@@ -727,6 +743,9 @@ public class Query extends Prologue implements Cloneable, Printable
             visitor.visitAskResultForm(this) ;
         if ( this.isJsonType() )
             visitor.visitJsonResultForm(this) ;
+        if (this.isSimJoinType()){
+            visitor.visitSimJoinResultForm(this);
+        }
         visitor.visitDatasetDecl(this) ;
         visitor.visitQueryPattern(this) ;
         visitor.visitGroupBy(this) ;

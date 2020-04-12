@@ -2,6 +2,7 @@ package org.apache.jena.sparql.engine.join;
 
 import com.eatthepath.jvptree.DistanceFunction;
 import com.eatthepath.jvptree.VPTree;
+import com.sun.xml.internal.fastinfoset.stax.events.EmptyIterator;
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.atlas.iterator.Iter;
 import org.apache.jena.graph.Node;
@@ -34,6 +35,10 @@ public class QueryIterVPTSimilarityJoin extends QueryIterSim {
         this.leftRows = new LinkedList<>();
         this.right_ = rightRows.iterator();
         s_countLHS = rightRows.size();
+        if (s_countLHS<=k){
+            iterator = EmptyIterator.getInstance();
+            return;
+        }
         s_countResults = s_countLHS * k;
         for(int i=0; i<s_countLHS; i++){
             knn.put(i, new PriorityQueue<>(((OpKNNSimJoin)opSimJoin).getK(), Neighbor.comparator));
@@ -57,7 +62,7 @@ public class QueryIterVPTSimilarityJoin extends QueryIterSim {
         while (left_.hasNext()) {
             Binding l = left_.nextBinding();
             leftRows.add(l);
-            List<Node> lKey = getKey(l, attrLeft);
+            //List<Node> lKey = getKey(l, attrLeft);
             List<Double> lvals = new LinkedList<>();
             for (Var v : attrLeft) {
                 lvals.add(Double.parseDouble((String) l.get(v).getLiteralValue()));
@@ -65,8 +70,8 @@ public class QueryIterVPTSimilarityJoin extends QueryIterSim {
             VPVector<Binding> query = new VPVector<>(l, lvals);
             List<VPVector<Binding>> res = index.getNearestNeighbors(query, k+1);
             for(int j=0; j<k+1; j++){
-                List<Node> rKey = getKey(res.get(j).key, attrRight);
-                if(sameKey(rKey,lKey))  continue;
+                //List<Node> rKey = getKey(res.get(j).key, attrRight);
+                //if(sameKey(rKey,lKey))  continue;
                 knn.get(i).add(new Neighbor<>(res.get(j).key, fun.getDistance(query, res.get(j))));
             }
             i++;

@@ -23,7 +23,7 @@ public class QueryIterFLANNSimilarityJoin extends QueryIterSim {
     private QueryIterFLANNSimilarityJoin(QueryIterator left, QueryIterator right, OpKNNSimJoin opSimJoin, ExecutionContext execCxt) {
         super(left,right,execCxt);
         this.left_ = left;
-        this.k = opSimJoin.getK();
+        this.k = opSimJoin.getK() + 1;
         this.attrLeft = opSimJoin.getLeftAttrs();
         this.attrRight = opSimJoin.getRightAttrs();
         this.distVar = opSimJoin.getDist();
@@ -46,8 +46,6 @@ public class QueryIterFLANNSimilarityJoin extends QueryIterSim {
         Metric metric = Distances.getMetric(this.distFunc);
         int[][] indices = new int[1][k];
         double[][] distances = new double[1][k];
-
-
         IndexKDTree.BuildParams buildParams = new IndexKDTree.BuildParams(4);
         IndexBase index = new IndexKDTree(metric, data, buildParams);
         index.buildIndex();
@@ -61,8 +59,7 @@ public class QueryIterFLANNSimilarityJoin extends QueryIterSim {
             leftRows.add(l);
             List<Double> lvals = new LinkedList<>();
             for (Var v : attrLeft) {
-                lvals.add(Double.parseDouble((String) l.get(v).getLiteralValue()));
-
+                lvals.add(((Number)l.get(v).getLiteralValue()).doubleValue());
             }
             double[][] query = new double[1][lvals.size()];
             query[0] = lvals.stream().mapToDouble(Double::doubleValue).toArray();
@@ -79,7 +76,7 @@ public class QueryIterFLANNSimilarityJoin extends QueryIterSim {
         for(Binding b : rightRows){
             List<Double> row = new LinkedList<>();
             for (Var v : attrRight ) {
-                row.add(Double.parseDouble((String) b.get(v).getLiteralValue()));
+                row.add(((Number)b.get(v).getLiteralValue()).doubleValue());
             }
             res.add(row);
         }
@@ -104,12 +101,7 @@ public class QueryIterFLANNSimilarityJoin extends QueryIterSim {
      */
     @Override
     protected boolean hasNextBinding() {
-        if(slot!=null) return true;
-        if(iterator.hasNext()){
-            slot = iterator.next();
-            return true;
-        }
-        return false;
+        return iterator.hasNext();
     }
 
     /**
@@ -119,11 +111,7 @@ public class QueryIterFLANNSimilarityJoin extends QueryIterSim {
      */
     @Override
     protected Binding moveToNextBinding() {
-        if ( !hasNextBinding() )
-            return null;
-        Binding x = slot;
-        slot = null;
-        return x;
+        return iterator.next();
     }
 
     /**

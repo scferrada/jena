@@ -43,13 +43,11 @@ public class StageGeneratorGeneric implements StageGenerator {
         if ( input == null )
             Log.error(this, "Null input to " + Lib.classShortName(this.getClass())) ;
 
-        Graph graph = execCxt.getActiveGraph() ;
-
         // Choose reorder transformation and execution strategy.
 
         ReorderTransformation reorder = reorderFixed ;
         StageGenerator executor = StageBuilder.executeInline ;
-
+        Log.warn(this, "hi");
         return execute(pattern, reorder, executor, input, execCxt) ;
     }
 
@@ -76,6 +74,7 @@ public class StageGeneratorGeneric implements StageGenerator {
             ReorderProc reorderProc = reorder.reorderIndexes(bgp2) ;
             pattern = reorderProc.reorder(pattern) ;
         }
+        Log.warn(this, "generic sgen");
         Explain.explain("Reorder/generic", pattern, execCxt.getContext()) ;
         return QueryIterBlockTriples.create(input, pattern, execCxt) ;
     }

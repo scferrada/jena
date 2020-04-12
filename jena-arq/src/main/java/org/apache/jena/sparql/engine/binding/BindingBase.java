@@ -177,7 +177,8 @@ abstract public class BindingBase implements Binding
         if ( !(other instanceof Binding) )
             return false;
         Binding binding = (Binding)other;
-        return equals(this, binding);
+        boolean r = equals(this, binding);
+        return r;
     }
 
     // Not everything derives from BindingBase.

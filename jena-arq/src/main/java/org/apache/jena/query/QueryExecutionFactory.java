@@ -26,6 +26,8 @@ import org.apache.jena.atlas.logging.Log ;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.impl.WrappedGraph;
 import org.apache.jena.rdf.model.Model ;
+import org.apache.jena.sparql.algebra.Algebra;
+import org.apache.jena.sparql.algebra.Op;
 import org.apache.jena.sparql.core.DatasetGraph ;
 import org.apache.jena.sparql.core.GraphView;
 import org.apache.jena.sparql.engine.Plan ;
@@ -632,6 +634,8 @@ public class QueryExecutionFactory
     }
 
     static private QueryEngineFactory findFactory(Query query, DatasetGraph dataset, Context context) {
+        /*Op op = Algebra.compile(query);
+        System.out.println(op);*/
         return QueryEngineRegistry.get().find(query, dataset, context) ;
     }
 

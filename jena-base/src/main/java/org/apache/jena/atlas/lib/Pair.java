@@ -26,9 +26,17 @@ import java.util.Objects;
 public class Pair<A, B>
 {
     public static <L, R> Pair<L,R> create(L x, R y) { return new Pair<>(x,y) ; }
-    
-    final A a ;
-    final B b ;
+
+    public void setLeft(A a) {
+        this.a = a;
+    }
+
+    public void setRight(B b) {
+        this.b = b;
+    }
+
+    A a ;
+     B b ;
     public Pair(A a, B b) { this.a = a; this.b = b ; }
     
     public A getLeft()  { return a ; }

@@ -18,6 +18,7 @@
 
 package org.apache.jena.query;
 
+import org.apache.jena.atlas.logging.Log;
 import org.apache.jena.sparql.core.Prologue ;
 
 /** Query visitor pattern */
@@ -45,4 +46,6 @@ public interface QueryVisitor
     public void visitValues(Query query) ;
     
     public void finishVisit(Query query) ;
+
+    default void visitSimJoinResultForm(Query query){}
 }

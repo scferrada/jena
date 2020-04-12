@@ -26,6 +26,7 @@ import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.sparql.core.Quad;
+import org.apache.jena.sparql.engine.QueryIterator;
 import org.apache.jena.sparql.util.Context;
 
 /** A interface for a single execution of a query. */
@@ -224,6 +225,10 @@ public interface QueryExecution extends AutoCloseable
     public long getTimeout1() ;
     /** Return the second timeout (overall query execution after first result), in milliseconds: negative if unset */
     public long getTimeout2() ;
+
+    ResultSet execSimJoin();
+
+    default QueryIterator execSelect2(){return null;}
 
     //	/** Say whether this QueryExecution is useable or not.
 //	 * An active execution is one that has not been closed, ended or aborted yet.

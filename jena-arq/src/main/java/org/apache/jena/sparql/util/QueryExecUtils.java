@@ -74,6 +74,8 @@ public class QueryExecUtils {
             prologue = dftPrologue ;
         if ( query.isSelectType() )
             doSelectQuery(prologue, queryExecution, outputFormat) ;
+        else if (query.isSimJoinType())
+            doSimJoinQuery(prologue, queryExecution, outputFormat);
         else if ( query.isDescribeType() )
             doDescribeQuery(prologue, queryExecution, outputFormat) ;
         else if ( query.isConstructQuad() )
@@ -136,6 +138,15 @@ public class QueryExecUtils {
         if ( outputFormat == null || outputFormat == ResultsFormat.FMT_UNKNOWN )
             outputFormat = ResultsFormat.FMT_TEXT ;
         ResultSet results = qe.execSelect() ;
+        outputResultSet(results, prologue, outputFormat) ;
+    }
+
+    private static void doSimJoinQuery(Prologue prologue, QueryExecution queryExecution, ResultsFormat outputFormat) {
+        if ( prologue == null )
+            prologue = queryExecution.getQuery().getPrologue() ;
+        if ( outputFormat == null || outputFormat == ResultsFormat.FMT_UNKNOWN )
+            outputFormat = ResultsFormat.FMT_TEXT ;
+        ResultSet results = queryExecution.execSimJoin();
         outputResultSet(results, prologue, outputFormat) ;
     }
 

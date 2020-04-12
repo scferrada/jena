@@ -1,5 +1,7 @@
 package org.apache.jena.sparql.engine.join;
 
+import org.apache.jena.atlas.io.IndentedWriter;
+import org.apache.jena.atlas.lib.Pair;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.DistanceFunction;
 import org.apache.jena.sparql.algebra.Algebra;
@@ -37,13 +39,27 @@ public abstract class QueryIterSim extends QueryIter2 {
 
     protected Map<Integer, PriorityQueue<Neighbor>> knn = new HashMap<>();
     protected List<Binding> results = new LinkedList<>();
+    protected Map<String, Pair<Double, Double>> norm = null;
 
     public QueryIterSim(QueryIterator left, QueryIterator right, ExecutionContext execCxt) {
         super(left, right, execCxt);
     }
 
+    public QueryIterSim(QueryIterator left, QueryIterator right, int k, DistanceFunction distFunc, Var v, List<Var> attrs, Map<String, Pair<Double, Double>> minmax, ExecutionContext execCxt) {
+        this(left, right, k, distFunc, v, attrs, execCxt);
+        this.norm = minmax;
+    }
+
+    public QueryIterSim(QueryIterator left, QueryIterator right, int k, DistanceFunction distFunc, Var v, List<Var> attrs, ExecutionContext execCxt) {
+        super(left, right, execCxt);
+    }
+
     public static QueryIterator create(QueryIterator left, QueryIterator right, OpSimJoin opSimJoin, ExecutionContext execCxt) {
-        return opSimJoin.createIterator(left, right);
+        return opSimJoin.createIterator(left, right, execCxt);
+    }
+
+    public static QueryIterator createNL(QueryIterator left, QueryIterator right, int k, DistanceFunction distFunc, Var v, List<Var> attrs, Map<String, Pair<Double, Double>> minmax, ExecutionContext execCxt) {
+        return new QueryIterSimilarityJoin(left, right, k, distFunc, v, attrs, minmax,execCxt);
     }
 
     protected void consolidate() {
@@ -74,6 +90,19 @@ public abstract class QueryIterSim extends QueryIter2 {
         return key;
     }
 
+    @Override
+    public void output(IndentedWriter w){
+        while(iterator.hasNext()) {
+            Binding b = iterator.next();
+//            String txt = String.format("<%s> <%s> %s",
+//            b.get(new Var("id1")).getURI(),
+//            b.get(new Var("id2")).getURI(),
+//            b.get(new Var("d")).getLiteralValue());
+            w.write(b.toString() + "\n");
+        }
+        w.close();
+    }
+
     public static class Neighbor<K>{
         private K key;
         private double distance;
@@ -98,8 +127,7 @@ public abstract class QueryIterSim extends QueryIter2 {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Neighbor<?> neighbor = (Neighbor<?>) o;
-            return key.equals(neighbor.key) &&
-                    distance == neighbor.distance;
+            return key.equals(neighbor.key);
         }
 
         @Override

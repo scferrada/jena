@@ -2,7 +2,6 @@ package org.apache.jena.query;
 
 import org.apache.jena.sparql.algebra.Op;
 import org.apache.jena.sparql.algebra.op.OpRangeSimJoin;
-import org.apache.jena.sparql.algebra.op.OpSimJoin;
 
 public class RangeSimJoinQuery extends SimJoinQuery{
     private double radius;
@@ -16,7 +15,7 @@ public class RangeSimJoinQuery extends SimJoinQuery{
     }
 
     @Override
-    public OpSimJoin createOp(Op left, Op right) {
+    public Op createOp(Op left, Op right) {
         OpRangeSimJoin op = new OpRangeSimJoin(left, right);
         op.setRadius(radius);
         op.setLeftAttrs(leftAttrs);

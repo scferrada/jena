@@ -53,6 +53,7 @@
    <properties>
      <maven.compiler.source>1.7</maven.compiler.source>
      <maven.compiler.target>1.7</maven.compiler.target>
+       <maven.test.skip>true</maven.test.skip>
     <ver.slf4j>1.7.26</ver.slf4j>
     <ver.log4j>1.2.17</ver.log4j>
     <ver.junit>4.12</ver.junit>  

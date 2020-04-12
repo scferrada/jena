@@ -63,7 +63,7 @@ public class query extends CmdARQ
     public query(String[] argv)
     {
         super(argv) ;
-        modQuery = new ModQueryIn(getDefaultSyntax()) ; 
+        modQuery = new ModQueryIn(Syntax.syntaxSPARQL_SJ_11) ;
         modDataset = setModDataset() ;
 
         super.addModule(modQuery) ;

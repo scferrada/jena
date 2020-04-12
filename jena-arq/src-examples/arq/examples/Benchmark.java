@@ -1,6 +1,7 @@
 package arq.examples;
 
 import org.apache.jena.atlas.web.TypedInputStream;
+import org.apache.jena.graph.Node;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.Syntax;
@@ -9,6 +10,7 @@ import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.sparql.algebra.Algebra;
 import org.apache.jena.sparql.algebra.Op;
+import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.QueryIterator;
 import org.apache.jena.sparql.engine.binding.Binding;
 
@@ -17,35 +19,53 @@ import java.io.File;
 public class Benchmark {
 
     public static void main(String[] args) {
-        File root = new File(args[1]);
-        for(File f : root.listFiles()) {
-            Model model = loadTriples(f);
+
+            double promedio = 0.0;
+        for (int w=0; w<8; w++) {
             long start = System.nanoTime();
-            String s = "SELECT DISTINCT ?id ?a1 ?b1 { ?id <http://ex.com/a> ?a1; <http://ex.com/b> ?b1 } similarity join on (?a1 ?b1) (?a2 ?b2) with distance manhattan as ?d top 3 SELECT DISTINCT ?id2 ?a2 ?b2 { ?id2 <http://ex.com/a> ?a2; <http://ex.com/b> ?b2 }";
+            Model model = ExQuerySelect2.createSimModel2(args[0]);
+            String s = "SELECT *  WHERE{ " +
+                    "?id1 <http://ex.com/b> ?b1 ; " +
+                    "<http://ex.com/c> ?c1 ;" +
+                    "<http://ex.com/d> ?d1 ;" +
+                    "<http://ex.com/e> ?e1 ;" +
+                    "<http://ex.com/f> ?f1 ;" +
+                    "<http://ex.com/g> ?g1 ;" +
+                    "<http://ex.com/h> ?h1 ;" +
+                    "<http://ex.com/i> ?i1  ." +
+                    " } similarity join on (?b1 ?c1 ?d1 ?e1 ?f1 ?g1 ?h1 ?i1) " +
+                    "(?b2 ?c2 ?d2 ?e2 ?f2 ?g2 ?h2 ?i2) " +
+                    "with distance euclidean as ?d within 5.9 " +
+                    "SELECT * WHERE{" +
+                    "?id2 <http://ex.com/b> ?b2 ; " +
+                    "<http://ex.com/c> ?c2 ; " +
+                    "<http://ex.com/d> ?d2 ; " +
+                    "<http://ex.com/e> ?e2 ; " +
+                    "<http://ex.com/f> ?f2 ; " +
+                    "<http://ex.com/g> ?g2 ; " +
+                    "<http://ex.com/h> ?h2 ; " +
+                    "<http://ex.com/i> ?i2 . }" ;
             // Parse
             Query query = QueryFactory.create(s, Syntax.syntaxSPARQL_SJ_11);
 
             // Generate algebra
             Op op = Algebra.compile(query);
-            op = Algebra.optimize(op);
 
+            op = Algebra.optimize(op);
             // Execute it.
             QueryIterator res = Algebra.exec(op, model);
-            long end = System.nanoTime();
+
             // Results
+            int results = 0;
             for (; res.hasNext(); ) {
-                Binding b = res.nextBinding();
-                System.out.println(b.toString());
+                results ++;
+                res.nextBinding();
             }
-            //res.close() ;
-
+            long end = System.nanoTime();
+            System.out.println(results);
             System.out.println((end - start) / 1000000.0);
+            promedio += (end - start) / 1000000.0;
         }
-    }
-
-    private static Model loadTriples(File f) {
-        Model m = ModelFactory.createDefaultModel();
-
-        return null;
+        System.out.println(promedio/8.0);
     }
 }

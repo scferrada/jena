@@ -19,6 +19,7 @@
 package org.apache.jena.tdb.solver;
 
 import org.apache.jena.atlas.lib.Lib ;
+import org.apache.jena.atlas.logging.Log;
 import org.apache.jena.query.Query ;
 import org.apache.jena.sparql.algebra.Algebra ;
 import org.apache.jena.sparql.algebra.Op ;
@@ -96,9 +97,11 @@ public class QueryEngineTDB extends QueryEngineMain
         // Fix DatasetGraph for global union.
         if ( context.isTrue(TDB.symUnionDefaultGraph) && ! isDynamicDataset() ) 
         {
+            System.out.println("in if");
             op = OpLib.unionDefaultGraphQuads(op) ;
             Explain.explain("REWRITE(Union default graph)", op, context) ;
         }
+        System.out.println("outif");
         QueryIterator results = super.eval(op, dsg, input, context) ;
         return results ; 
     }

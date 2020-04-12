@@ -29,7 +29,7 @@
   </parent> 
 
   <packaging>jar</packaging>
-  
+
   <properties>
     <automatic.module.name>org.apache.jena.fuseki.access</automatic.module.name>
   </properties>

@@ -113,7 +113,6 @@ public class tdbloader extends CmdTDBGraph {
                 break ;
             }
         }
-        
         loadNamedGraph(urls) ;
     }
 

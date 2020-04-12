@@ -20,12 +20,16 @@ package org.apache.jena.sparql.engine.join;
 
 import java.util.ArrayList;
 import java.util.List ;
+import java.util.Map;
 
 import org.apache.jena.atlas.iterator.Iter ;
+import org.apache.jena.atlas.lib.Pair;
+import org.apache.jena.query.DistanceFunction;
 import org.apache.jena.sparql.algebra.Algebra ;
 import org.apache.jena.sparql.algebra.Table ;
 import org.apache.jena.sparql.algebra.TableFactory ;
 import org.apache.jena.sparql.algebra.op.OpSimJoin;
+import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.ExecutionContext ;
 import org.apache.jena.sparql.engine.QueryIterator ;
 import org.apache.jena.sparql.engine.binding.Binding ;
@@ -80,6 +84,10 @@ public class Join {
 
     public static QueryIterator simjoin(QueryIterator left, QueryIterator right, OpSimJoin opSimJoin, ExecutionContext execCxt) {
         return QueryIterSim.create(left, right, opSimJoin, execCxt);
+    }
+
+    public static QueryIterator simjoin(QueryIterator left, QueryIterator right, int k, DistanceFunction distFunc, Var v, List<Var> attrs, Map<String, Pair<Double, Double>> minmax, ExecutionContext execCxt) {
+        return QueryIterSim.createNL(left, right, k, distFunc, v, attrs, minmax,execCxt);
     }
 
     interface JoinOp { 

@@ -35,6 +35,9 @@ data/
 # Binaries
 *.jar
 
+wikidata/
+flann_java
+
 # Backups
 *~
 .#*

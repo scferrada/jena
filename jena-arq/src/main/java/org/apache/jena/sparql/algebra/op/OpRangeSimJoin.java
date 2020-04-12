@@ -1,9 +1,10 @@
 package org.apache.jena.sparql.algebra.op;
 
 import org.apache.jena.sparql.algebra.Op;
+import org.apache.jena.sparql.engine.ExecutionContext;
 import org.apache.jena.sparql.engine.QueryIterator;
-import org.apache.jena.sparql.engine.iterator.QueryIter;
 import org.apache.jena.sparql.engine.join.QueryIterSimilarityRange;
+import org.apache.jena.sparql.engine.join.QueryIterVPTRangeSimilarityJoin;
 
 public class OpRangeSimJoin extends OpSimJoin {
 
@@ -22,8 +23,8 @@ public class OpRangeSimJoin extends OpSimJoin {
     }
 
     @Override
-    public QueryIterator createIterator(QueryIterator left, QueryIterator right) {
-        return QueryIterSimilarityRange.create(left, right, this, null);
+    public QueryIterator createIterator(QueryIterator left, QueryIterator right, ExecutionContext execCxt) {
+        return QueryIterVPTRangeSimilarityJoin.create(left, right, this, execCxt);
     }
 
     @Override

@@ -101,7 +101,7 @@ public class IndentedWriter extends AWriterBase implements AWriter, Closeable
     }
     
     /** Using Writers directly is discouraged */
-    protected IndentedWriter(Writer writer) { this(writer, false) ; }
+    public IndentedWriter(Writer writer) { this(writer, false) ; }
     
     /** Using Writers directly is discouraged */
     protected IndentedWriter(Writer writer, boolean withLineNumbers) {

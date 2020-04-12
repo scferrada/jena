@@ -1,8 +1,11 @@
 package org.apache.jena.sparql.algebra.op;
 
 import org.apache.jena.sparql.algebra.Op;
+import org.apache.jena.sparql.engine.ExecutionContext;
 import org.apache.jena.sparql.engine.QueryIterator;
+import org.apache.jena.sparql.engine.join.QueryIterFLANNSimilarityJoin;
 import org.apache.jena.sparql.engine.join.QueryIterSimilarityJoin;
+import org.apache.jena.sparql.engine.join.QueryIterVPTSimilarityJoin;
 
 import java.util.LinkedList;
 
@@ -15,9 +18,10 @@ public class OpKNNSimJoin extends OpSimJoin {
     }
 
     @Override
-    public QueryIterator createIterator(QueryIterator left, QueryIterator right) {
-        return QueryIterSimilarityJoin.create(left, right, this, null);
+    public QueryIterator createIterator(QueryIterator left, QueryIterator right, ExecutionContext execCxt) {
+        return QueryIterFLANNSimilarityJoin.create(left, right, this, execCxt);
     }
+
 
     public Op2 copy(Op left, Op right) {
         OpKNNSimJoin sj = new OpKNNSimJoin(left, right);

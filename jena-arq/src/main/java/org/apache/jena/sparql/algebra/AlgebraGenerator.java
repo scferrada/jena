@@ -97,7 +97,13 @@ public class AlgebraGenerator
         if(query instanceof SimJoinQuery){
             Op oq1 = compile(((SimJoinQuery) query).getQ1());
             Op oq2 = compile(((SimJoinQuery) query).getQ2());
-            OpSimJoin sj = OpSimJoin.create(oq1, oq2, (SimJoinQuery) query);
+            if(oq1 instanceof OpProject) {
+                oq1 = ((OpProject) oq1).getSubOp();
+            }
+            if(oq2 instanceof OpProject) {
+                oq2 = ((OpProject) oq2).getSubOp();
+            }
+            Op sj = OpSimJoin.create(oq1, oq2, (SimJoinQuery) query);
             return sj;
         }
         Op op = compile(query.getQueryPattern()) ;     // Not compileElement - may need to apply simplification.

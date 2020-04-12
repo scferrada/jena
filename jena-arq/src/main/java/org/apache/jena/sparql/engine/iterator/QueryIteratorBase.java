@@ -113,7 +113,7 @@ public abstract class QueryIteratorBase
         // Handles exceptions
         boolean r = hasNextBinding() ; 
 
-        if ( r == false )
+        if (!r)
             try {
                 close() ;
             } catch (QueryFatalException ex)

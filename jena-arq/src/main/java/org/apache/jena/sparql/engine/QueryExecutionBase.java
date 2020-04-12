@@ -35,7 +35,15 @@ import org.apache.jena.atlas.lib.AlarmClock;
 import org.apache.jena.atlas.logging.Log;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
-import org.apache.jena.query.* ;
+import org.apache.jena.query.ARQ;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.QueryCancelledException;
+import org.apache.jena.query.QueryExecException;
+import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFNode;
@@ -43,6 +51,9 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.sparql.ARQConstants;
+import org.apache.jena.sparql.algebra.Algebra;
+import org.apache.jena.sparql.algebra.Op;
+import org.apache.jena.sparql.algebra.op.OpSimJoin;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.Quad;
 import org.apache.jena.sparql.core.Var;
@@ -64,10 +75,10 @@ import org.apache.jena.sparql.util.ModelUtils;
 
 public class QueryExecutionBase implements QueryExecution
 {
-    private final Query              query;
+    private final Query query;
     private final QueryEngineFactory qeFactory;
-    private final Context            context;
-    private final Dataset            dataset;
+    private final Context context;
+    private final Dataset dataset;
     private final DatasetGraph       dsg;
     
     private QueryIterator            queryIterator    = null;
@@ -192,10 +203,23 @@ public class QueryExecutionBase implements QueryExecution
     @Override
     public ResultSet execSelect() {
         checkNotClosed();
+        System.out.println(this.getClass());
         if ( !query.isSelectType() )
             throw new QueryExecException("Attempt to have ResultSet from a " + labelForQuery(query) + " query");
         ResultSet rs = execResultSet();
         return new ResultSetCheckCondition(rs, this);
+    }
+
+    public ResultSet execSimJoin(){
+/*        SimJoinQuery sjq = (SimJoinQuery) query;
+        QueryExecution q1 = new QueryExecutionBase(sjq.getQ1(),dsg,context,qeFactory);
+        q1.execSelect();
+        ResultSet r1 = execResultSet();
+        QueryExecution q2 = new QueryExecutionBase(sjq.getQ2(),dsg,context,qeFactory);
+        q2.execSelect();
+        ResultSet r2 = execResultSet();*/
+        //Join.simjoin()
+        return execResultSet();
     }
 
      // Construct
@@ -586,6 +610,7 @@ public class QueryExecutionBase implements QueryExecution
     
     private ResultSet execResultSet() {
         startQueryIterator();
+        System.out.println("exec rs");
         return asResultSet(queryIterator);
     }
 
@@ -596,8 +621,15 @@ public class QueryExecutionBase implements QueryExecution
                 inputBinding = BindingUtils.asBinding(initialBinding);
             if ( inputBinding == null )
                 inputBinding = BindingRoot.create();
+            Op op = Algebra.compile(query);
+            //op = Algebra.optimize(op);
+            if (op instanceof OpSimJoin){
+                QueryEngineFactory f = QueryEngineRegistry.findFactory(op, dsg, context);
+                plan = f.create(op, dsg, BindingRoot.create(), context);
+                return plan;
+            }
+            plan = qeFactory.create(op, dsg, inputBinding, getContext());
 
-            plan = qeFactory.create(query, dsg, inputBinding, getContext());
         }
         return plan;
     }
@@ -634,7 +666,7 @@ public class QueryExecutionBase implements QueryExecution
 
     @Override
     public Context getContext() { return context ; }
-    
+
     @Override
     public Dataset getDataset() { return dataset ; }
 
@@ -645,7 +677,11 @@ public class QueryExecutionBase implements QueryExecution
     public void setInitialBinding(QuerySolution startSolution) {
         initialBinding = startSolution ;
     }
-    
+
+    public void setInitialBinding(Binding startSolution) {
+        throw new UnsupportedOperationException("don't do this");
+    }
+
     //protected QuerySolution getInputBindings() { return initialBinding ; }
 
     public void setInitialBindings(ResultSet table)

@@ -20,5 +20,5 @@ package org.apache.jena.atlas.io;
 
 public interface Printable
 {
-    public void output(IndentedWriter out) ;
+    void output(IndentedWriter out) ;
 }

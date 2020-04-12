@@ -38,6 +38,7 @@ import org.apache.jena.atlas.io.IO;
 import org.apache.jena.atlas.io.IndentedLineBuffer;
 import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.atlas.lib.Pair;
+import org.apache.jena.atlas.logging.Log;
 import org.apache.jena.atlas.web.ContentType;
 import org.apache.jena.fuseki.Fuseki;
 import org.apache.jena.fuseki.system.FusekiNetLib;
@@ -45,6 +46,7 @@ import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.web.HttpNames;
 import org.apache.jena.riot.web.HttpOp;
+import org.apache.jena.sparql.algebra.Algebra;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.Prologue;
 import org.apache.jena.sparql.engine.EngineLib;
@@ -143,7 +145,7 @@ public abstract class SPARQLQueryProcessor extends ActionService
 
     /**
      * Helper method for validating request.
-     * @param request HTTP request
+     * @param action HTTP request
      * @param params parameters in a collection of Strings
      */
     protected void validateParams(HttpAction action, Collection<String> params) {
@@ -249,7 +251,7 @@ public abstract class SPARQLQueryProcessor extends ActionService
         Query query = null;
         try {
             // NB syntax is ARQ (a superset of SPARQL)
-            query = QueryFactory.create(queryString, QueryParseBase, Syntax.syntaxARQ);
+            query = QueryFactory.create(queryString, QueryParseBase, Syntax.syntaxSPARQL_SJ_11);
             queryStringLog = formatForLog(query);
             validateQuery(action, query);
         } catch (ActionErrorException ex) {
@@ -261,17 +263,17 @@ public abstract class SPARQLQueryProcessor extends ActionService
         catch (QueryException ex) {
             ServletOps.errorBadRequest("Error: \n" + queryString + "\n\r" + ex.getMessage());
         }
-
+        DatasetGraph dataset = null;
         // Assumes finished whole thing by end of sendResult.
         try {
             action.beginRead();
             Pair<DatasetGraph, Query> p = decideDataset(action, query, queryStringLog);
-            DatasetGraph dataset = p.getLeft();
+            dataset = p.getLeft();
             Query q = p.getRight();
             if ( q == null )
                 q = query;
 
-            try ( QueryExecution qExec = createQueryExecution(action, q, dataset); ) {
+            try ( QueryExecution qExec = createQueryExecution(action, q, dataset)) {
                 SPARQLResult result = executeQuery(action, qExec, query, queryStringLog);
                 // Deals with exceptions itself.
                 sendResults(action, result, query.getPrologue());
@@ -285,7 +287,7 @@ public abstract class SPARQLQueryProcessor extends ActionService
             // Additional counter information.
             incCounter(action.getEndpoint().getCounters(), QueryTimeouts);
             throw ex;
-        } finally { action.endRead(); }
+        } finally { action.endRead();}
     }
 
     /**
@@ -330,6 +332,12 @@ public abstract class SPARQLQueryProcessor extends ActionService
             // rs = ResultSetFactory.copyResults(rs);
 
             //action.log.info(format("[%d] exec/select", action.id));
+            return new SPARQLResult(rs);
+        }
+
+        if(query.isSimJoinType()){
+            ResultSet rs = queryExecution.execSimJoin();
+            //rs.hasNext();
             return new SPARQLResult(rs);
         }
 
@@ -421,7 +429,7 @@ public abstract class SPARQLQueryProcessor extends ActionService
     /**
      * Create the set of all parameters passed by validation.
      * This is called once only.
-     * Override {@link acceptedParams} for a full dynamic choice.
+     * Override {@link} for a full dynamic choice.
      */
     protected Set<String> generateAcceptedParams() {
         Set<String> x  = new HashSet<>();

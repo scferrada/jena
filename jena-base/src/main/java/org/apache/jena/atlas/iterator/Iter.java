@@ -28,6 +28,7 @@ import java.util.stream.StreamSupport ;
 
 import org.apache.jena.atlas.lib.Closeable ;
 import org.apache.jena.atlas.lib.Sink ;
+import org.apache.jena.atlas.logging.Log;
 
 /**
  * Iter provides general utilities for working with {@link Iterator}s.
@@ -275,6 +276,7 @@ public class Iter<T> implements Iterator<T> {
                 throw new UnsupportedOperationException("map.remove") ;
             }
         } ;
+        //Log.warn(Iter.class, iter.hasNext()+"");
         return iter ;
     }
 

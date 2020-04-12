@@ -236,7 +236,7 @@ public class OpRewriter implements OpVisitor {
 			final SecuredFunction secFunc = new SecuredFunction(graphIRI,
 					securityEvaluator, variables, newBGP);
 			// create the filter
-			Op filter = OpFilter.filter(secFunc,
+			Op filter = filter(secFunc,
 					new OpBGP(BasicPattern.wrap(newBGP)));
 			// add the filter
 			addOp(filter);

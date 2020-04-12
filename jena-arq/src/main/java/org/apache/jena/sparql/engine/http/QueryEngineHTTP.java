@@ -37,15 +37,19 @@ import org.apache.jena.atlas.json.JsonArray;
 import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.atlas.json.JsonValue;
 import org.apache.jena.atlas.lib.Pair ;
+import org.apache.jena.atlas.logging.Log;
 import org.apache.jena.graph.Triple ;
 import org.apache.jena.query.* ;
 import org.apache.jena.rdf.model.Model ;
 import org.apache.jena.riot.*;
 import org.apache.jena.riot.resultset.ResultSetLang;
 import org.apache.jena.riot.resultset.ResultSetReaderRegistry;
+import org.apache.jena.riot.web.HttpOp;
 import org.apache.jena.sparql.ARQException ;
 import org.apache.jena.sparql.core.Quad;
+import org.apache.jena.sparql.engine.QueryIterator;
 import org.apache.jena.sparql.engine.ResultSetCheckCondition ;
+import org.apache.jena.sparql.engine.binding.Binding;
 import org.apache.jena.sparql.graph.GraphFactory ;
 import org.apache.jena.sparql.resultset.ResultSetException;
 import org.apache.jena.sparql.util.Context ;
@@ -80,7 +84,7 @@ public class QueryEngineHTTP implements QueryExecution {
     // Timeouts
     private long connectTimeout = -1;
     private TimeUnit connectTimeoutUnit = TimeUnit.MILLISECONDS;
-    private long readTimeout = -1;
+    private long readTimeout = 0;
     private TimeUnit readTimeoutUnit = TimeUnit.MILLISECONDS;
 
     // Compression Support
@@ -176,7 +180,7 @@ public class QueryEngineHTTP implements QueryExecution {
             return;
 
         @SuppressWarnings("unchecked")
-        Map<String, Context> serviceContextMap = (Map<String, Context>) engine.context.get(Service.serviceContext);
+        Map<String, Context> serviceContextMap = engine.context.get(Service.serviceContext);
         if (serviceContextMap != null && serviceContextMap.containsKey(serviceURI)) {
             Context serviceContext = serviceContextMap.get(serviceURI);
             if (log.isDebugEnabled())
@@ -236,8 +240,7 @@ public class QueryEngineHTTP implements QueryExecution {
     // public void setParams(Params params)
     // { this.params = params ; }
 
-    @Override
-    public void setInitialBinding(QuerySolution binding) {
+    public void setInitialBinding(Binding binding) {
         throw new UnsupportedOperationException(
                 "Initial bindings not supported for remote queries, consider using a ParameterizedSparqlString to prepare a query for remote execution");
     }
@@ -349,6 +352,7 @@ public class QueryEngineHTTP implements QueryExecution {
 	private ResultSet execResultSetInner() {
         HttpQuery httpQuery = makeHttpQuery();
         httpQuery.setAccept(chooseAcceptHeader(acceptHeader, selectContentType));
+        //httpQuery.setClient(HttpOp.getDefaultHttpClient());
         InputStream in = httpQuery.exec();
 
         if (false) {
@@ -581,6 +585,18 @@ public class QueryEngineHTTP implements QueryExecution {
         return context;
     }
 
+    /**
+     * Set the initial association of variables and values.
+     * May not be supported by all QueryExecution implementations.
+     *
+     * @param binding
+     */
+    @Override
+    public void setInitialBinding(QuerySolution binding) {
+        throw new UnsupportedOperationException(
+                "Initial bindings not supported for remote queries, consider using a ParameterizedSparqlString to prepare a query for remote execution");
+    }
+
     @Override
     public Dataset getDataset() {
         return null;
@@ -651,6 +667,12 @@ public class QueryEngineHTTP implements QueryExecution {
         return asMillis(connectTimeout, connectTimeoutUnit);
     }
 
+
+    public ResultSet execSimJoin() {
+        Log.warn(this, "BEEN HERE");
+        return null;
+    }
+
     /**
      * Gets whether HTTP requests will indicate to the remote server that
      * compressed encoding of responses is accepted
@@ -672,6 +694,7 @@ public class QueryEngineHTTP implements QueryExecution {
         HttpQuery httpQuery = new HttpQuery(service);
         httpQuery.merge(getServiceParams(service, context));
         httpQuery.addParam(HttpParams.pQuery, queryString);
+        httpQuery.addParam("debug", "on");
 
         for ( String dft : defaultGraphURIs )
         {
@@ -702,7 +725,6 @@ public class QueryEngineHTTP implements QueryExecution {
         if (connectTimeout > 0) httpQuery.setConnectTimeout((int) connectTimeoutUnit.toMillis(connectTimeout));
 
         if (readTimeout > 0) httpQuery.setReadTimeout((int) readTimeoutUnit.toMillis(readTimeout));
-
         return httpQuery;
     }
 

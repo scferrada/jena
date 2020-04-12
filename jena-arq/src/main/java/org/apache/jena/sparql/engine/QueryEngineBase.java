@@ -26,6 +26,7 @@ import org.apache.jena.riot.system.IRIResolver;
 import org.apache.jena.sparql.ARQConstants ;
 import org.apache.jena.sparql.algebra.Algebra ;
 import org.apache.jena.sparql.algebra.Op ;
+import org.apache.jena.sparql.algebra.op.OpSimJoin;
 import org.apache.jena.sparql.core.DatasetDescription;
 import org.apache.jena.sparql.core.DatasetGraph ;
 import org.apache.jena.sparql.core.DynamicDatasets;
@@ -124,12 +125,12 @@ public abstract class QueryEngineBase implements OpEval, Closeable
             // needed in the output.
         }
         op = modifyOp(op) ;
-
         QueryIterator queryIterator = null ;
         if ( dataset != null )
-            // Null means setting up but not executing a query.
+            // Null means setting up but not executing a query
+        {
             queryIterator = evaluate(op, dataset, startBinding, context) ;
-        else
+        } else
             // Bypass management interface
             queryIterator = evaluateNoMgt(op, dataset, startBinding, context) ;
         // This could be an automagic iterator to catch close.

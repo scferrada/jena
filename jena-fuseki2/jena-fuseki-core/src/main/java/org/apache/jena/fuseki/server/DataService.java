@@ -254,7 +254,7 @@ public class DataService {
     private void expel(DatasetGraph database) {
         // Text databases.
         // Close the in-JVM objects for Lucene index and databases.
-        if ( database instanceof DatasetGraphText ) {
+        if ( database instanceof DatasetGraphText) {
             DatasetGraphText dbtext = (DatasetGraphText)database;
             database = dbtext.getBase();
             dbtext.getTextIndex().close();

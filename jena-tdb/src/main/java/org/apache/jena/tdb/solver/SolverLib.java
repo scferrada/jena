@@ -29,6 +29,7 @@ import org.apache.jena.atlas.iterator.Iter ;
 import org.apache.jena.atlas.iterator.IteratorWrapper ;
 import org.apache.jena.atlas.lib.tuple.Tuple ;
 import org.apache.jena.atlas.lib.tuple.TupleFactory ;
+import org.apache.jena.atlas.logging.Log;
 import org.apache.jena.graph.Node ;
 import org.apache.jena.graph.Triple ;
 import org.apache.jena.query.QueryCancelledException ;
@@ -102,7 +103,7 @@ public class SolverLib
             graphNode = null ;
         
         List<Triple> triples = pattern.getList() ;
-        boolean anyGraph = (graphNode==null ? false : (Node.ANY.equals(graphNode))) ;
+        boolean anyGraph = (graphNode != null && (Node.ANY.equals(graphNode))) ;
 
         int tupleLen = nodeTupleTable.getTupleTable().getTupleLen() ;
         if ( graphNode == null ) {
@@ -121,7 +122,7 @@ public class SolverLib
         
         for ( Triple triple : triples )
         {
-            Tuple<Node> tuple = null ;
+            Tuple<Node> tuple;
             if ( graphNode == null )
                 // 3-tuples
                 tuple = tuple(triple.getSubject(), triple.getPredicate(), triple.getObject()) ;
@@ -129,7 +130,7 @@ public class SolverLib
                 // 4-tuples.
                 tuple = tuple(graphNode, triple.getSubject(), triple.getPredicate(), triple.getObject()) ;
             chain = solve(nodeTupleTable, tuple, anyGraph, chain, filter, execCxt) ;
-            chain = makeAbortable(chain, killList) ; 
+            chain = makeAbortable(chain, killList) ;
         }
         
         // DEBUG POINT
@@ -153,7 +154,9 @@ public class SolverLib
         
         // "input" will be closed by QueryIterTDB but is otherwise unused.
         // "killList" will be aborted on timeout.
-        return new QueryIterTDB(iterBinding, killList, input, execCxt) ;
+        QueryIterTDB queryIterTDB = new QueryIterTDB(iterBinding, killList, input, execCxt);
+        //Log.warn(queryIterTDB, String.format("%s", queryIterTDB.hasNext()));
+        return queryIterTDB;
     }
     
     /** Create an abortable iterator, storing it in the killList.

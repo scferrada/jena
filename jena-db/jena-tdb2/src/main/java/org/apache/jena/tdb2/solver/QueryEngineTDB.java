@@ -20,6 +20,7 @@ package org.apache.jena.tdb2.solver;
 
 
 import org.apache.jena.atlas.lib.Lib ;
+import org.apache.jena.atlas.logging.Log;
 import org.apache.jena.query.Query ;
 import org.apache.jena.sparql.algebra.Algebra ;
 import org.apache.jena.sparql.algebra.Op ;
@@ -146,6 +147,7 @@ public class QueryEngineTDB extends QueryEngineMain
         public Plan create(Op op, DatasetGraph dataset, Binding binding, Context context)
         {
             QueryEngineTDB engine = new QueryEngineTDB(op, dsgToQuery(dataset), binding, context);
+            Log.warn(this,"Been here");
             return engine.getPlan();
         }
     }
